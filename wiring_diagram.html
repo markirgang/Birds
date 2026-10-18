@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦜 Animatronic Bird Show - Hardware Wiring Diagram & Schematic</title>
+    <style>
+        :root {
+            --bg-dark: #0a0d18;
+            --card-bg: #13182b;
+            --card-border: #232d4b;
+            --text-main: #f0f4f8;
+            --text-muted: #8a99ad;
+            --accent-cyan: #00f0ff;
+            --accent-yellow: #ffd700;
+            --accent-green: #00ff88;
+            --accent-red: #ff3344;
+            --accent-magenta: #ff0077;
+            --font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg-dark); color: var(--text-main); font-family: var(--font-family); padding: 20px; line-height: 1.5; }
+        header { display: flex; justify-content: space-between; align-items: center; background: #131c36; border: 1px solid var(--card-border); padding: 18px 25px; border-radius: 12px; margin-bottom: 20px; }
+        h1 { font-size: 1.5rem; color: var(--accent-cyan); }
+        .subtitle { font-size: 0.85rem; color: var(--text-muted); }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        th { background: #0c1222; color: var(--accent-cyan); font-weight: bold; }
+        tr:hover { background: rgba(0, 240, 255, 0.1); }
+        .btn { background: var(--accent-cyan); color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        code { color: var(--accent-yellow); font-family: monospace; }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>🦜 ANIMATRONIC BIRD SHOW HARDWARE SCHEMATIC</h1>
+            <span class="subtitle">Complete Master Wiring Map for Raspberry Pi, PCA9685 PWM Driver, L298N Motors & Relays</span>
+        </div>
+        <button class="btn" onclick="window.print()">🖨️ Print Schematic</button>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <h3 style="color:var(--accent-cyan);">🍓 Raspberry Pi MCU</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">
+                Controls Web server, Gemini Voice AI, I2C bus (Pin 3 SDA, Pin 5 SCL), L298N drivers & Chirp Relays.
+            </p>
+        </div>
+        <div class="card">
+            <h3 style="color:var(--accent-cyan);">🎛️ PCA9685 16-Ch PWM</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">
+                I2C Address 0x40. Drives all 16 stage servos (3-DOF perches, 2-DOF spotlights, turntable base).
+            </p>
+        </div>
+        <div class="card">
+            <h3 style="color:var(--accent-magenta);">⚙️ Dual L298N H-Bridges</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">
+                Parrot 1 & Parrot 2 Mouth Solenoids (Ch A), Blinking Eyes (Reverse Polarity), Flapping Wings (Ch B).
+            </p>
+        </div>
+        <div class="card">
+            <h3 style="color:var(--accent-yellow);">🐥 Relays & Power Rail</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;">
+                Relay #1 (GPIO 17) & Relay #2 (GPIO 27). High-Current 12A Power Supply with Shared Common Ground Bus.
+            </p>
+        </div>
+    </div>
+
+    <div class="card" style="overflow-x: auto;">
+        <h3 style="color:var(--accent-cyan); margin-bottom:12px;">⚡ Visual Circuit Schematic</h3>
+        <iframe src="wiring_diagram.svg" style="width:100%; height:600px; border:none; border-radius:8px;"></iframe>
+    </div>
+
+    <div class="card">
+        <h3 style="color:var(--accent-cyan);">📋 GPIO & PCA9685 Pinout Table</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>Pin / Channel #</th>
+                    <th>Signal Name</th>
+                    <th>Connected Target</th>
+                    <th>Terminal</th>
+                    <th>Function</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Raspberry Pi</td><td>Pin 3</td><td><code>GPIO 2 (SDA1)</code></td><td>PCA9685 PWM Driver</td><td>SDA</td><td>I2C Data Bus</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 5</td><td><code>GPIO 3 (SCL1)</code></td><td>PCA9685 PWM Driver</td><td>SCL</td><td>I2C Clock Bus</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 11</td><td><code>GPIO 17</code></td><td>2-Channel Relay Board</td><td>IN1</td><td>Front Left Small Bird Chirp Relay</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 12</td><td><code>GPIO 18 (PWM)</code></td><td>L298N Driver #1 (P1)</td><td>ENA</td><td>Parrot 1 Mouth/Eyes PWM Speed</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 13</td><td><code>GPIO 27</code></td><td>2-Channel Relay Board</td><td>IN2</td><td>Front Right Small Bird Chirp Relay</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 15</td><td><code>GPIO 22</code></td><td>Transistor Driver</td><td>Base/Gate</td><td>Center Small Bird Gearmotor</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 16</td><td><code>GPIO 23</code></td><td>L298N Driver #1 (P1)</td><td>IN1</td><td>Parrot 1 Mouth Open (Normal Polarity)</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 18</td><td><code>GPIO 24</code></td><td>L298N Driver #1 (P1)</td><td>IN2</td><td>Parrot 1 Eyes Blink (Reverse Polarity)</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 22</td><td><code>GPIO 25</code></td><td>L298N Driver #1 (P1)</td><td>IN3</td><td>Parrot 1 Wing Flap Motor Dir 1</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 24</td><td><code>GPIO 8</code></td><td>L298N Driver #1 (P1)</td><td>IN4</td><td>Parrot 1 Wing Flap Motor Dir 2</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 32</td><td><code>GPIO 12 (PWM)</code></td><td>L298N Driver #2 (P2)</td><td>ENA</td><td>Parrot 2 Mouth/Eyes PWM Speed</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 33</td><td><code>GPIO 13 (PWM)</code></td><td>L298N Driver #2 (P2)</td><td>ENB</td><td>Parrot 2 Flapping Wings Speed</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 35</td><td><code>GPIO 19 (PWM)</code></td><td>L298N Driver #1 (P1)</td><td>ENB</td><td>Parrot 1 Flapping Wings Speed</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 36</td><td><code>GPIO 16</code></td><td>L298N Driver #2 (P2)</td><td>IN1</td><td>Parrot 2 Mouth Open (Normal Polarity)</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 37</td><td><code>GPIO 26</code></td><td>L298N Driver #2 (P2)</td><td>IN4</td><td>Parrot 2 Wing Flap Motor Dir 2</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 38</td><td><code>GPIO 20</code></td><td>L298N Driver #2 (P2)</td><td>IN2</td><td>Parrot 2 Eyes Blink (Reverse Polarity)</td></tr>
+                <tr><td>Raspberry Pi</td><td>Pin 40</td><td><code>GPIO 21</code></td><td>L298N Driver #2 (P2)</td><td>IN3</td><td>Parrot 2 Wing Flap Motor Dir 1</td></tr>
+                <tr><td>PCA9685 PWM</td><td>Channels 0 - 2</td><td><code>PWM Servo Out</code></td><td>Parrot 1 (Left) 3-DOF</td><td>Servos</td><td>Turn (Yaw), Bow (Pitch), Shimmy (Roll)</td></tr>
+                <tr><td>PCA9685 PWM</td><td>Channels 3 - 5</td><td><code>PWM Servo/LED</code></td><td>Parrot 1 Spotlight</td><td>Servos & Dimmer</td><td>Pan, Tilt, LED Intensity Dimmer</td></tr>
+                <tr><td>PCA9685 PWM</td><td>Channels 6 - 8</td><td><code>PWM Servo Out</code></td><td>Parrot 2 (Right) 3-DOF</td><td>Servos</td><td>Turn (Yaw), Bow (Pitch), Shimmy (Roll)</td></tr>
+                <tr><td>PCA9685 PWM</td><td>Channels 9 - 11</td><td><code>PWM Servo/LED</code></td><td>Parrot 2 Spotlight</td><td>Servos & Dimmer</td><td>Pan, Tilt, LED Intensity Dimmer</td></tr>
+                <tr><td>PCA9685 PWM</td><td>Channels 12 - 14</td><td><code>PWM Servo Out</code></td><td>Center Small Bird 3-DOF</td><td>Servos</td><td>Turn (Yaw), Bow (Pitch), Shimmy (Roll)</td></tr>
+                <tr><td>PCA9685 PWM</td><td>Channel 15</td><td><code>PWM Servo Out</code></td><td>Main Stage Turntable</td><td>Base Servo</td><td>Stage Rotation Base Motor</td></tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

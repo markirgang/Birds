@@ -1,0 +1,36 @@
+Subsystem / Header,Pin / Channel #,Signal / GPIO Name,Wire Color Code,Target Hardware Module,Terminal / Pin,Function Description
+Raspberry Pi 4/5,Pin 3,GPIO 2 (SDA1),Cyan,PCA9685 PWM Driver,SDA Terminal,I2C Serial Data Bus for 16-Channel Servo Controller
+Raspberry Pi 4/5,Pin 5,GPIO 3 (SCL1),Blue,PCA9685 PWM Driver,SCL Terminal,I2C Serial Clock Line for 16-Channel Servo Controller
+Raspberry Pi 4/5,Pin 11,GPIO 17,Gold,2-Channel Relay Board,Relay #1 IN,Front Left Small Bird Chirp Sound Circuit Relay Trigger
+Raspberry Pi 4/5,Pin 12,GPIO 18 (PWM),Magenta,L298N Driver #1 (Parrot 1),ENA (Channel A PWM),Parrot 1 Mouth / Eyes Actuator PWM Speed Control
+Raspberry Pi 4/5,Pin 13,GPIO 27,Orange,2-Channel Relay Board,Relay #2 IN,Front Right Small Bird Chirp Sound Circuit Relay Trigger
+Raspberry Pi 4/5,Pin 15,GPIO 22,Green,Transistor Motor Driver,Base / Gate Signal,Center Small Bird Gearmotor & Beak Movement Driver
+Raspberry Pi 4/5,Pin 16,GPIO 23,Blue,L298N Driver #1 (Parrot 1),IN1 (Channel A Dir),Parrot 1 Channel A Polarity 1 (Forward = Open Mouth)
+Raspberry Pi 4/5,Pin 18,GPIO 24,Blue,L298N Driver #1 (Parrot 1),IN2 (Channel A Dir),Parrot 1 Channel A Polarity 2 (Reverse = Eyes Blink Pulse)
+Raspberry Pi 4/5,Pin 22,GPIO 25,Magenta,L298N Driver #1 (Parrot 1),IN3 (Channel B Dir),Parrot 1 Flapping Wings Motor Direction Line 1
+Raspberry Pi 4/5,Pin 24,GPIO 8,Magenta,L298N Driver #1 (Parrot 1),IN4 (Channel B Dir),Parrot 1 Flapping Wings Motor Direction Line 2
+Raspberry Pi 4/5,Pin 32,GPIO 12 (PWM),Cyan,L298N Driver #2 (Parrot 2),ENA (Channel A PWM),Parrot 2 Mouth / Eyes Actuator PWM Speed Control
+Raspberry Pi 4/5,Pin 33,GPIO 13 (PWM),Cyan,L298N Driver #2 (Parrot 2),ENB (Channel B PWM),Parrot 2 Flapping Wings Motor PWM Speed Control
+Raspberry Pi 4/5,Pin 35,GPIO 19 (PWM),Magenta,L298N Driver #1 (Parrot 1),ENB (Channel B PWM),Parrot 1 Flapping Wings Motor PWM Speed Control
+Raspberry Pi 4/5,Pin 36,GPIO 16,Cyan,L298N Driver #2 (Parrot 2),IN1 (Channel A Dir),Parrot 2 Channel A Polarity 1 (Forward = Open Mouth)
+Raspberry Pi 4/5,Pin 37,GPIO 26,Cyan,L298N Driver #2 (Parrot 2),IN4 (Channel B Dir),Parrot 2 Flapping Wings Motor Direction Line 2
+Raspberry Pi 4/5,Pin 38,GPIO 20,Cyan,L298N Driver #2 (Parrot 2),IN2 (Channel A Dir),Parrot 2 Channel A Polarity 2 (Reverse = Eyes Blink Pulse)
+Raspberry Pi 4/5,Pin 40,GPIO 21,Cyan,L298N Driver #2 (Parrot 2),IN3 (Channel B Dir),Parrot 2 Flapping Wings Motor Direction Line 1
+PCA9685 PWM Driver,Channel 0,PWM Servo Out,Red,Parrot 1 (Left Tall),3-DOF Turn Servo,Parrot 1 Base Left/Right Turn Motor (0-180 deg)
+PCA9685 PWM Driver,Channel 1,PWM Servo Out,Red,Parrot 1 (Left Tall),3-DOF Bow Servo,Parrot 1 Forward/Backward Bowing Motor (0-180 deg)
+PCA9685 PWM Driver,Channel 2,PWM Servo Out,Red,Parrot 1 (Left Tall),3-DOF Shimmy Servo,Parrot 1 Body Side-to-Side Shimmy Motor (0-180 deg)
+PCA9685 PWM Driver,Channel 3,PWM Servo Out,Gold,Parrot 1 Spotlight,2-DOF Pan Servo,Spotlight #1 Horizontal Pan Servo
+PCA9685 PWM Driver,Channel 4,PWM Servo Out,Gold,Parrot 1 Spotlight,2-DOF Tilt Servo,Spotlight #1 Vertical Tilt Servo
+PCA9685 PWM Driver,Channel 5,PWM Dimmer Out,Gold,Parrot 1 Spotlight,LED Dimmer Input,Spotlight #1 High-Brightness LED Intensity PWM
+PCA9685 PWM Driver,Channel 6,PWM Servo Out,Cyan,Parrot 2 (Right Tall),3-DOF Turn Servo,Parrot 2 Base Left/Right Turn Motor (0-180 deg)
+PCA9685 PWM Driver,Channel 7,PWM Servo Out,Cyan,Parrot 2 (Right Tall),3-DOF Bow Servo,Parrot 2 Forward/Backward Bowing Motor (0-180 deg)
+PCA9685 PWM Driver,Channel 8,PWM Servo Out,Cyan,Parrot 2 (Right Tall),3-DOF Shimmy Servo,Parrot 2 Body Side-to-Side Shimmy Motor (0-180 deg)
+PCA9685 PWM Driver,Channel 9,PWM Servo Out,Gold,Parrot 2 Spotlight,2-DOF Pan Servo,Spotlight #2 Horizontal Pan Servo
+PCA9685 PWM Driver,Channel 10,PWM Servo Out,Gold,Parrot 2 Spotlight,2-DOF Tilt Servo,Spotlight #2 Vertical Tilt Servo
+PCA9685 PWM Driver,Channel 11,PWM Dimmer Out,Gold,Parrot 2 Spotlight,LED Dimmer Input,Spotlight #2 High-Brightness LED Intensity PWM
+PCA9685 PWM Driver,Channel 12,PWM Servo Out,Green,Center Small Bird,3-DOF Turn Servo,Center Front Small Bird Turn Motor
+PCA9685 PWM Driver,Channel 13,PWM Servo Out,Green,Center Small Bird,3-DOF Bow Servo,Center Front Small Bird Bowing Motor
+PCA9685 PWM Driver,Channel 14,PWM Servo Out,Green,Center Small Bird,3-DOF Shimmy Servo,Center Front Small Bird Shimmy Motor
+PCA9685 PWM Driver,Channel 15,PWM Servo Out,Purple,Main Stage Base,Turntable Servo Motor,Whole Stage Rotating Turntable Base Drive Servo
+Power Rail,+5V / +6V,DC Power Rail,Red,PCA9685 V+ & L298N 12V,Power Screws,High-Current 12A Power Supply for Servos and Gearmotors
+Power Rail,GND Bus,Common Ground,Black/Grey,All Boards & Pi GND,Ground Terminal,Shared Common Reference Ground Bus across all Modules

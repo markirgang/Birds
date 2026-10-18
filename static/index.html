@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦜 Animatronic Bird Show Master Control</title>
+    <link rel="stylesheet" href="/style.css">
+    <!-- Three.js & OrbitControls -->
+    <script src="/lib/three.min.js"></script>
+    <script src="/lib/OrbitControls.js"></script>
+    <script>
+        function switchTab(targetTabId) {
+            if (!targetTabId) return;
+            var panes = document.querySelectorAll('.tab-pane');
+            for (var i = 0; i < panes.length; i++) {
+                panes[i].style.display = 'none';
+                panes[i].classList.remove('active');
+            }
+            var btns = document.querySelectorAll('.nav-tab-btn');
+            for (var j = 0; j < btns.length; j++) {
+                btns[j].classList.remove('active');
+            }
+            var targetPane = document.getElementById(targetTabId);
+            if (targetPane) {
+                targetPane.style.display = 'block';
+                targetPane.classList.add('active');
+            }
+            var matchingBtns = document.querySelectorAll('.nav-tab-btn[data-tab="' + targetTabId + '"]');
+            for (var k = 0; k < matchingBtns.length; k++) {
+                matchingBtns[k].classList.add('active');
+            }
+            if (targetTabId === 'tabWiring' && typeof initWiringDiagramEngine === 'function') {
+                initWiringDiagramEngine();
+            } else if (targetTabId === 'tabConfig' && typeof populateMediaDevices === 'function') {
+                populateMediaDevices();
+            } else if (targetTabId === 'tabStage' && typeof window.visualizer !== 'undefined' && window.visualizer && typeof window.visualizer.onWindowResize === 'function') {
+                window.visualizer.onWindowResize();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Bar -->
+        <header class="app-header">
+            <div class="header-title">
+                <h1>🦜 ANIMATRONIC BIRD SHOW</h1>
+                <span class="subtitle">Master Animatronics & AI Synchronized Performance Controller</span>
+            </div>
+            <div class="header-status">
+                <span class="status-badge" id="systemStatus">🟢 ONLINE (Port 1290)</span>
+                <button class="btn-export" id="btnExportCode">📥 Download Python Script</button>
+            </div>
+        </header>
+
+        <!-- Navigation Tab Bar -->
+        <nav class="nav-tabs-bar">
+            <button class="nav-tab-btn active" id="tabBtnStage" data-tab="tabStage" onclick="switchTab('tabStage')">🎭 Main Stage & Controls</button>
+            <button class="nav-tab-btn" id="tabBtnWiring" data-tab="tabWiring" onclick="switchTab('tabWiring')">🛠️ Hardware & Wiring Diagrams</button>
+            <button class="nav-tab-btn" id="tabBtnCalib" data-tab="tabCalib" onclick="switchTab('tabCalib')">🔧 Servo Calibration & Hardware Output Tests</button>
+            <button class="nav-tab-btn" id="tabBtnConfig" data-tab="tabConfig" onclick="switchTab('tabConfig')">⚙️ System Configuration (Camera, Mic, Audio & Voice)</button>
+        </nav>
+
+        <!-- Tab 1: Main Stage & Animatronics Pane -->
+        <div id="tabStage" class="tab-pane active">
+            <!-- Main Content Layout -->
+            <div class="main-layout">
+            <!-- Left Side: 3D Stage & Core Parrot Controls -->
+            <div class="stage-section">
+                <!-- 3-POSITION AI SPEECH SYNC SLIDE SWITCH -->
+                <div class="sync-switch-card">
+                    <div class="sync-switch-header">
+                        <h3>🎙️ AI SPEECH SYNCHRONIZATION SELECTOR</h3>
+                        <span class="sync-switch-info">Select which parrot syncs mouth movement when AI speaks or sings!</span>
+                    </div>
+                    
+                    <div class="slide-switch-container">
+                        <div class="slide-switch-track" id="syncSwitchTrack">
+                            <label class="switch-option" data-value="parrot1">
+                                <input type="radio" name="aiSyncMode" value="parrot1">
+                                <span class="option-label">🦜 PARROT 1 (LEFT)</span>
+                            </label>
+
+                            <label class="switch-option active" data-value="turns">
+                                <input type="radio" name="aiSyncMode" value="turns" checked>
+                                <span class="option-label">🔄 TAKE TURNS (ALTERNATING)</span>
+                            </label>
+
+                            <label class="switch-option" data-value="parrot2">
+                                <input type="radio" name="aiSyncMode" value="parrot2">
+                                <span class="option-label">🦜 PARROT 2 (RIGHT)</span>
+                            </label>
+                            <div class="switch-slider-thumb" id="switchThumb"></div>
+                        </div>
+                    </div>
+                    <div class="active-speaker-indicator">
+                        Current Active Speaker: <strong id="activeSpeakerText">PARROT 1 (LEFT)</strong>
+                    </div>
+                </div>
+
+                <!-- 3D Stage Visualizer -->
+                <div class="canvas-card">
+                    <div class="card-header">
+                        <h3>🎭 REAL-TIME 3D STAGE VISUALIZER</h3>
+                        <span class="card-badge">Three.js Animatronics</span>
+                    </div>
+                    <div id="stage3dContainer" class="canvas-container"></div>
+                </div>
+
+                <!-- AI Voice Microphone, Live VU Meter & Singing Performance -->
+                <div class="ai-performance-card">
+                    <div class="card-header">
+                        <h3>🎙️ TALK TO THE PARROTS (MIC & LIVE VU METER)</h3>
+                        <span class="card-badge">Gemini Voice & Vision AI</span>
+                    </div>
+                    
+                    <div class="ai-controls-grid">
+                        <div class="mic-section">
+                            <button class="btn-primary" id="btnMicToggle">🎙️ Start Voice Mic</button>
+                            <div class="mic-vu-bar">
+                                <div class="vu-fill" id="vuFill"></div>
+                            </div>
+                            <div class="slider-row" style="margin-top: 6px;">
+                                <span>Mic Sensitivity:</span>
+                                <input type="range" min="5" max="50" value="15" id="micSensitivitySlider">
+                                <span id="micSensitivityVal">15%</span>
+                            </div>
+                        </div>
+
+                        <div class="chat-input-group">
+                            <input type="text" id="aiPromptInput" placeholder="Ask the parrots to sing a song, tell a joke, or perform..." class="chat-input">
+                            <button class="btn-action" id="btnSendChat">Perform / Speak</button>
+                        </div>
+                    </div>
+
+                    <div class="ai-response-box" id="aiResponseBox">
+                        <em>Welcome to the Animatronic Tropical Bird Show! Click "Start Voice Mic" or send a message to talk to the parrots.</em>
+                    </div>
+                </div>
+
+                <!-- MP3 SONG PLAYLIST & REAL-TIME PARROT LIPSYNC -->
+                <div class="panel-card mp3-lipsync-card">
+                    <div class="card-header">
+                        <h3>🎵 MP3 SONG PLAYLIST & REAL-TIME PARROT LIPSYNC</h3>
+                        <span class="card-badge" id="lipsyncBadge">🎶 Web Audio Lipsync Engine</span>
+                    </div>
+
+                    <div class="mp3-player-grid">
+                        <!-- Song Playlist Selection & File Upload -->
+                        <div class="playlist-select-group">
+                            <label for="songSelect">Select Song Playlist:</label>
+                            <div class="select-upload-row">
+                                <select id="songSelect" class="song-dropdown">
+                                    <option value="">-- Choose Song --</option>
+                                </select>
+                                <label for="fileUploadInput" class="btn-upload">
+                                    📁 Upload MP3
+                                    <input type="file" id="fileUploadInput" accept="audio/*" style="display:none;">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Audio Player Transport Controls -->
+                        <div class="player-controls-group">
+                            <div class="transport-btn-row">
+                                <button class="btn-transport" id="btnSongPlay">▶️ Play & Sync</button>
+                                <button class="btn-transport" id="btnSongPause">⏸️ Pause</button>
+                                <button class="btn-transport" id="btnSongStop">⏹️ Stop</button>
+                            </div>
+
+                            <!-- Progress & Scrubbing Bar -->
+                            <div class="progress-row">
+                                <span id="currTimeText">00:00</span>
+                                <input type="range" min="0" max="100" value="0" id="songProgressBar" class="progress-bar">
+                                <span id="durTimeText">00:00</span>
+                            </div>
+                        </div>
+
+                        <!-- Lipsync Sensitivity & Volume Controls -->
+                        <div class="lipsync-settings-group">
+                            <div class="slider-row">
+                                <span>Lipsync Sensitivity:</span>
+                                <input type="range" min="10" max="100" value="45" id="lipsyncGainSlider">
+                                <span id="lipsyncGainVal">45%</span>
+                            </div>
+                            <div class="slider-row">
+                                <span>Music Volume:</span>
+                                <input type="range" min="0" max="100" value="80" id="songVolumeSlider">
+                                <span id="songVolumeVal">80%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parrot 1 & Parrot 2 Controls Side-by-Side Under the Main Stage Pane -->
+                <div class="parrots-controls-grid">
+                    <!-- Parrot 1 Controls (Left Tall Parrot) -->
+                    <div class="panel-card parrot-card">
+                        <div class="card-header">
+                            <h3 style="color:#ff4444;">🦜 PARROT 1 (LEFT TALL PARROT)</h3>
+                            <span class="card-badge">L298 #1 + 3-DOF Perch</span>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="p1VoiceSelect">Voice Type:</label>
+                            <div style="display:flex; gap:8px;">
+                                <select id="p1VoiceSelect" class="config-select" style="flex:1;">
+                                    <option value="ai_female_us">👩 Female US English (Standard Parrot)</option>
+                                    <option value="ai_male_us">👨 Male US English (Deep Parrot)</option>
+                                    <option value="ai_female_uk">🇬🇧 Female UK English (British Parrot)</option>
+                                    <option value="ai_male_uk">🇬🇧 Male UK English (Gentleman Parrot)</option>
+                                    <option value="ai_female_au">🇦🇺 Female Australian English (Aussie Parrot)</option>
+                                    <option value="ai_male_au">🇦🇺 Male Australian English (Outback Parrot)</option>
+                                    <option value="ai_female_in">🇮🇳 Female Indian English (Tropical Accent)</option>
+                                    <option value="ai_female_ca">🇨🇦 Female Canadian English</option>
+                                    <option value="ai_spanish">🇪🇸 Spanish Parrot (Español)</option>
+                                    <option value="ai_french">🇫🇷 French Parrot (Français)</option>
+                                </select>
+                                <button class="btn-action" id="btnTestP1CardVoice" style="padding: 6px 12px; font-size:0.85rem;">🗣️ Test</button>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>L298 Channel A (Mouth & Eyes):</label>
+                            <div class="btn-group">
+                                <button class="btn-toggle" id="btnP1Mouth">👄 Mouth Open</button>
+                                <button class="btn-toggle" id="btnP1Eyes">👁️ Eyes Blink</button>
+                                <button class="btn-toggle active" id="btnP1Off">🛑 Off</button>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>L298 Channel B (Wings Flap):</label>
+                            <button class="btn-toggle" id="btnP1Wings">🪽 Flap Wings ON/OFF</button>
+                        </div>
+
+                        <div class="control-group">
+                            <label>3-DOF Perch Servos:</label>
+                            <div class="btn-group" style="margin-bottom:8px;">
+                                <button class="btn-toggle" id="btnP1Circle">🔄 3D Circles</button>
+                                <button class="btn-action" id="btnP1SweepPerch" style="font-size:0.75rem; padding:4px 8px;">🔄 Sweep Perch</button>
+                            </div>
+                            <div class="slider-row">
+                                <span>Turn (Yaw):</span>
+                                <input type="range" min="0" max="180" value="90" id="p1Turn">
+                                <span id="p1TurnVal">90°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span>Bow (Pitch):</span>
+                                <input type="range" min="0" max="180" value="90" id="p1Bow">
+                                <span id="p1BowVal">90°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span>Shimmy (Roll):</span>
+                                <input type="range" min="0" max="180" value="90" id="p1Shimmy">
+                                <span id="p1ShimmyVal">90°</span>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>2-DOF Spotlight (Shimmy L/R, Tilt Up/Down, Brightness):</label>
+                            <div class="btn-group" style="margin-bottom:8px;">
+                                <button class="btn-toggle" id="btnP1SpotCircle">🔄 2-DOF Circles</button>
+                                <button class="btn-action" id="btnP1SpotSweep" style="font-size:0.75rem; padding:4px 8px;">↕️ Pan & Tilt Sweep</button>
+                            </div>
+                            <div class="slider-row">
+                                <span>Shimmy L/R:</span>
+                                <input type="range" min="0" max="180" value="90" id="p1SpotPan">
+                                <span id="p1SpotPanVal">90°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span>Tilt Up/Down:</span>
+                                <input type="range" min="0" max="180" value="90" id="p1SpotTilt">
+                                <span id="p1SpotTiltVal">90°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span>PWM Brightness:</span>
+                                <input type="range" min="0" max="100" value="100" id="p1SpotInt">
+                                <span id="p1SpotIntVal">100%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parrot 2 Controls (Right Tall Parrot) -->
+                    <div class="panel-card parrot-card">
+                        <div class="card-header">
+                            <h3 style="color:#00e5ff;">🦜 PARROT 2 (RIGHT TALL PARROT)</h3>
+                            <span class="card-badge">L298 #2 + 3-DOF Perch</span>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="p2VoiceSelect">Voice Type:</label>
+                            <div style="display:flex; gap:8px;">
+                                <select id="p2VoiceSelect" class="config-select" style="flex:1;">
+                                    <option value="ai_female_us">👩 Female US English (Standard Parrot)</option>
+                                    <option value="ai_male_us" selected>👨 Male US English (Deep Parrot)</option>
+                                    <option value="ai_female_uk">🇬🇧 Female UK English (British Parrot)</option>
+                                    <option value="ai_male_uk">🇬🇧 Male UK English (Gentleman Parrot)</option>
+                                    <option value="ai_female_au">🇦🇺 Female Australian English (Aussie Parrot)</option>
+                                    <option value="ai_male_au">🇦🇺 Male Australian English (Outback Parrot)</option>
+                                    <option value="ai_female_in">🇮🇳 Female Indian English (Tropical Accent)</option>
+                                    <option value="ai_female_ca">🇨🇦 Female Canadian English</option>
+                                    <option value="ai_spanish">🇪🇸 Spanish Parrot (Español)</option>
+                                    <option value="ai_french">🇫🇷 French Parrot (Français)</option>
+                                </select>
+                                <button class="btn-action" id="btnTestP2CardVoice" style="padding: 6px 12px; font-size:0.85rem;">🗣️ Test</button>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>L298 Channel A (Mouth & Eyes):</label>
+                            <div class="btn-group">
+                                <button class="btn-toggle" id="btnP2Mouth">👄 Mouth Open</button>
+                                <button class="btn-toggle" id="btnP2Eyes">👁️ Eyes Blink</button>
+                                <button class="btn-toggle active" id="btnP2Off">🛑 Off</button>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>L298 Channel B (Wings Flap):</label>
+                            <button class="btn-toggle" id="btnP2Wings">🪽 Flap Wings ON/OFF</button>
+                        </div>
+
+                        <div class="control-group">
+                            <label>3-DOF Perch Servos:</label>
+                            <div class="btn-group" style="margin-bottom:8px;">
+                                <button class="btn-toggle" id="btnP2Circle">🔄 3D Circles</button>
+                                <button class="btn-action" id="btnP2SweepPerch" style="font-size:0.75rem; padding:4px 8px;">🔄 Sweep Perch</button>
+                            </div>
+                            <div class="slider-row">
+                                <span>Turn (Yaw):</span>
+                                <input type="range" min="0" max="180" value="90" id="p2Turn">
+                                <span id="p2TurnVal">90°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span>Bow (Pitch):</span>
+                                <input type="range" min="0" max="180" value="90" id="p2Bow">
+                                <span id="p2BowVal">90°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span>Shimmy (Roll):</span>
+                                <input type="range" min="0" max="180" value="90" id="p2Shimmy">
+                                <span id="p2ShimmyVal">90°</span>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>2-DOF Spotlight (Shimmy L/R, Tilt Up/Down, Brightness):</label>
+                            <div class="btn-group" style="margin-bottom:8px;">
+                                <button class="btn-toggle" id="btnP2SpotCircle">🔄 2-DOF Circles</button>
+                                <button class="btn-action" id="btnP2SpotSweep" style="font-size:0.75rem; padding:4px 8px;">↕️ Pan & Tilt Sweep</button>
+                            </div>
+                            <div class="slider-row">
+                                <span>Shimmy L/R:</span>
+                                <input type="range" min="0" max="180" value="90" id="p2SpotPan">
+                                <span id="p2SpotPanVal">90°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span>Tilt Up/Down:</span>
+                                <input type="range" min="0" max="180" value="90" id="p2SpotTilt">
+                                <span id="p2SpotTiltVal">90°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span>PWM Brightness:</span>
+                                <input type="range" min="0" max="100" value="100" id="p2SpotInt">
+                                <span id="p2SpotIntVal">100%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Camera & Stage Accessories -->
+            <div class="controls-section">
+                <!-- Camera Feed & Select -->
+                <div class="panel-card">
+                    <div class="card-header">
+                        <h3>📹 STAGE CAMERA FEED</h3>
+                        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                            <select id="camSourceSelect" class="source-select">
+                                <option value="usb">USB Webcam 1 (/dev/video0)</option>
+                                <option value="1">USB Webcam 2 (/dev/video1)</option>
+                                <option value="csi">Raspberry Pi CSI Camera</option>
+                                <option value="virtual">Virtual Stage Feed</option>
+                            </select>
+                            <button class="btn-action" id="btnSwitchCam" title="Switch to Next Camera" style="padding:4px 8px; font-size:0.75rem;">🔀 Switch</button>
+                            <button class="btn-action" id="btnResetCam" title="Reset Camera Feed" style="padding:4px 8px; font-size:0.75rem;">🔄 Reset</button>
+                        </div>
+                    </div>
+                    <div class="camera-preview">
+                        <img id="camFeed" src="/api/camera/frame" alt="Stage Camera Feed">
+                    </div>
+                </div>
+
+                <!-- Small Birds & Relays Panel -->
+                <div class="panel-card">
+                    <div class="card-header">
+                        <h3>🐥 SMALL BIRDS CONTROLLER (5 BIRDS TOTAL)</h3>
+                        <span class="card-badge">Chirp Relays, Motors & Spotlights</span>
+                    </div>
+
+                    <div class="small-birds-grid">
+                        <!-- Center Front Small Bird -->
+                        <div class="small-bird-box" style="grid-column: span 2; background: rgba(255, 215, 0, 0.08); border: 1px solid rgba(255, 215, 0, 0.3);">
+                            <h4 style="color: #ffd700;">🐤 Center Front Small Bird (3-DOF Perch & Beak Motor)</h4>
+                            <div class="btn-group" style="margin-bottom:10px;">
+                                <button class="btn-toggle" id="btnCenterMotor">⚙️ Beak & Body Motor ON/OFF</button>
+                                <button class="btn-toggle" id="btnCenterChirpPulse">🐣 Beak Chirp Pulse</button>
+                                <button class="btn-toggle" id="btnCenterCircle">🔄 3D Circles</button>
+                                <button class="btn-action" id="btnCenterSweepPerch" style="font-size:0.75rem; padding:4px 8px;">🔄 Sweep 3-DOF Perch</button>
+                            </div>
+
+                            <div class="control-group" style="margin-top:8px;">
+                                <label style="font-size:0.8rem; color:#00d4ff; font-weight:bold;">3-DOF Perch Servos Control:</label>
+                                <div class="slider-row">
+                                    <span>Turn (Yaw):</span>
+                                    <input type="range" min="0" max="180" value="90" id="centerTurn">
+                                    <span id="centerTurnVal">90°</span>
+                                    <div class="btn-group" style="gap:2px;">
+                                        <button class="btn-toggle" class="btn-preset-turn" data-val="0" style="padding:2px 6px; font-size:0.7rem;">0°</button>
+                                        <button class="btn-toggle" class="btn-preset-turn" data-val="90" style="padding:2px 6px; font-size:0.7rem;">90°</button>
+                                        <button class="btn-toggle" class="btn-preset-turn" data-val="180" style="padding:2px 6px; font-size:0.7rem;">180°</button>
+                                    </div>
+                                </div>
+                                <div class="slider-row">
+                                    <span>Bow (Pitch):</span>
+                                    <input type="range" min="0" max="180" value="90" id="centerBow">
+                                    <span id="centerBowVal">90°</span>
+                                    <div class="btn-group" style="gap:2px;">
+                                        <button class="btn-toggle" class="btn-preset-bow" data-val="0" style="padding:2px 6px; font-size:0.7rem;">0°</button>
+                                        <button class="btn-toggle" class="btn-preset-bow" data-val="90" style="padding:2px 6px; font-size:0.7rem;">90°</button>
+                                        <button class="btn-toggle" class="btn-preset-bow" data-val="180" style="padding:2px 6px; font-size:0.7rem;">180°</button>
+                                    </div>
+                                </div>
+                                <div class="slider-row">
+                                    <span>Shimmy (Roll):</span>
+                                    <input type="range" min="0" max="180" value="90" id="centerShimmy">
+                                    <span id="centerShimmyVal">90°</span>
+                                    <div class="btn-group" style="gap:2px;">
+                                        <button class="btn-toggle" class="btn-preset-shimmy" data-val="0" style="padding:2px 6px; font-size:0.7rem;">0°</button>
+                                        <button class="btn-toggle" class="btn-preset-shimmy" data-val="90" style="padding:2px 6px; font-size:0.7rem;">90°</button>
+                                        <button class="btn-toggle" class="btn-preset-shimmy" data-val="180" style="padding:2px 6px; font-size:0.7rem;">180°</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2 Front Small Birds -->
+                        <div class="small-bird-box">
+                            <h4>Front Left Small Bird</h4>
+                            <button class="btn-toggle" id="btnFrontLeftSpot">💡 Spotlight</button>
+                            <button class="btn-toggle" id="btnFrontLeftRelay">⚡ Relay 1 Chirp</button>
+                            <button class="btn-toggle" id="btnFrontLeftMotor">⚙️ Motor Move</button>
+                        </div>
+
+                        <div class="small-bird-box">
+                            <h4>Front Right Small Bird</h4>
+                            <button class="btn-toggle" id="btnFrontRightSpot">💡 Spotlight</button>
+                            <button class="btn-toggle" id="btnFrontRightRelay">⚡ Relay 2 Chirp</button>
+                            <button class="btn-toggle" id="btnFrontRightMotor">⚙️ Motor Move</button>
+                        </div>
+
+                        <!-- 2 Rear Small Birds -->
+                        <div class="small-bird-box">
+                            <h4>Rear Left Small Bird</h4>
+                            <button class="btn-toggle" id="btnRearLeftSpot">💡 Spotlight</button>
+                            <button class="btn-toggle" id="btnRearLeftMotor">⚙️ Motor Move</button>
+                        </div>
+
+                        <div class="small-bird-box">
+                            <h4>Rear Right Small Bird</h4>
+                            <button class="btn-toggle" id="btnRearRightSpot">💡 Spotlight</button>
+                            <button class="btn-toggle" id="btnRearRightMotor">⚙️ Motor Move</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Stage Rotating Base Servo -->
+                <div class="panel-card">
+                    <div class="card-header">
+                        <h3>🔄 MAIN STAGE ROTATING BASE SERVO</h3>
+                        <span class="card-badge">Base Servo Motor</span>
+                    </div>
+                    <div class="slider-row">
+                        <span>Base Angle:</span>
+                        <input type="range" min="0" max="180" value="90" id="baseAngle">
+                        <span id="baseAngleVal">90°</span>
+                    </div>
+                    <button class="btn-toggle active" id="btnBaseRandom">🎲 Slow Random Rotation ON</button>
+                </div>
+            </div>
+        </div>
+        </div> <!-- End of tabStage -->
+
+        <!-- Tab 2: Servo Calibration & Hardware Output Tests Pane -->
+        <div id="tabCalib" class="tab-pane" style="display: none;">
+            <!-- Diagnostics Header Card -->
+            <div class="sync-switch-card" style="border-color: var(--accent-yellow); background: linear-gradient(135deg, #1f1b0f, #13120b); margin-bottom: 20px;">
+                <div class="card-header" style="border:none;">
+                    <h3>🚀 ALL-OUTPUTS MASTER HARDWARE DIAGNOSTICS & SELF-TEST</h3>
+                    <button class="btn-export" id="btnRunFullHardwareTest" style="background: linear-gradient(135deg, var(--accent-yellow), #ff9900); color: #000; font-size: 0.9rem; padding: 10px 20px;">⚡ RUN FULL HARDWARE SELF-TEST SEQUENCER</button>
+                </div>
+                <div class="ai-response-box" id="diagConsoleLog" style="font-family: monospace; font-size: 0.85rem; color: #00ff88; min-height: 75px; max-height: 140px; overflow-y: auto;">
+                    <em>System Ready. Click "RUN FULL HARDWARE SELF-TEST SEQUENCER" to test all 3-DOF perches, L298 motor drivers, spotlights, and chirp relays in order...</em>
+                </div>
+            </div>
+
+            <div class="config-grid">
+                <!-- Servo Offset & Limit Calibration (All 14 Servos) -->
+                <div class="panel-card config-card" style="grid-column: span 2;">
+                    <div class="card-header">
+                        <h3>📐 SERVO ZERO OFFSETS & CALIBRATION TRIMS (ALL 14 SERVOS)</h3>
+                        <span class="card-badge">PCA9685 PWM Channels 0 - 15</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <!-- Parrot 1 Servos -->
+                        <div class="small-bird-box" style="background: rgba(255, 68, 68, 0.05); border: 1px solid rgba(255, 68, 68, 0.2);">
+                            <h4 style="color:#ff5555; text-align:left; font-size:0.9rem;">🦜 Parrot 1 Servos (PCA Ch 0 - 4):</h4>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Turn (Yaw) Ch 0:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibP1TurnOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibP1TurnOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibP1TurnOffset', 1)">+</button>
+                                <span id="calibP1TurnOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Bow (Pitch) Ch 1:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibP1BowOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibP1BowOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibP1BowOffset', 1)">+</button>
+                                <span id="calibP1BowOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Shimmy (Roll) Ch 2:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibP1ShimmyOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibP1ShimmyOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibP1ShimmyOffset', 1)">+</button>
+                                <span id="calibP1ShimmyOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Spot Pan Ch 3:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibP1SpotPanOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibP1SpotPanOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibP1SpotPanOffset', 1)">+</button>
+                                <span id="calibP1SpotPanOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Spot Tilt Ch 4:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibP1SpotTiltOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibP1SpotTiltOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibP1SpotTiltOffset', 1)">+</button>
+                                <span id="calibP1SpotTiltOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                        </div>
+
+                        <!-- Parrot 2 Servos -->
+                        <div class="small-bird-box" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2);">
+                            <h4 style="color:#00d4ff; text-align:left; font-size:0.9rem;">🦜 Parrot 2 Servos (PCA Ch 6 - 10):</h4>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Turn (Yaw) Ch 6:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibP2TurnOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibP2TurnOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibP2TurnOffset', 1)">+</button>
+                                <span id="calibP2TurnOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Bow (Pitch) Ch 7:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibP2BowOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibP2BowOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibP2BowOffset', 1)">+</button>
+                                <span id="calibP2BowOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Shimmy (Roll) Ch 8:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibP2ShimmyOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibP2ShimmyOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibP2ShimmyOffset', 1)">+</button>
+                                <span id="calibP2ShimmyOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Spot Pan Ch 9:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibP2SpotPanOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibP2SpotPanOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibP2SpotPanOffset', 1)">+</button>
+                                <span id="calibP2SpotPanOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Spot Tilt Ch 10:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibP2SpotTiltOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibP2SpotTiltOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibP2SpotTiltOffset', 1)">+</button>
+                                <span id="calibP2SpotTiltOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                        </div>
+
+                        <!-- Center Bird & Turntable Base Servos -->
+                        <div class="small-bird-box" style="background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2);">
+                            <h4 style="color:#00ff88; text-align:left; font-size:0.9rem;">🐤 Center Bird & Base (Ch 12 - 15):</h4>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Ctr Turn (Yaw) Ch 12:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibCenterTurnOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibCenterTurnOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibCenterTurnOffset', 1)">+</button>
+                                <span id="calibCenterTurnOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Ctr Bow (Pitch) Ch 13:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibCenterBowOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibCenterBowOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibCenterBowOffset', 1)">+</button>
+                                <span id="calibCenterBowOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Ctr Shimmy Ch 14:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibCenterShimmyOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibCenterShimmyOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibCenterShimmyOffset', 1)">+</button>
+                                <span id="calibCenterShimmyOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                            <div class="slider-row">
+                                <span style="font-size:0.78rem;">Turntable Base Ch 15:</span>
+                                <button class="btn-step" onclick="adjustOffset('calibBaseAngleOffset', -1)">-</button>
+                                <input type="range" min="-30" max="30" value="0" id="calibBaseAngleOffset">
+                                <button class="btn-step" onclick="adjustOffset('calibBaseAngleOffset', 1)">+</button>
+                                <span id="calibBaseAngleOffsetVal" style="width:38px; text-align:right;">0°</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group" style="margin-top: 15px; flex-wrap: wrap;">
+                        <button class="btn-toggle" id="btnCalibCenterAll">🎯 Center All Servos (90°)</button>
+                        <button class="btn-toggle" id="btnCalibSweepAll">🔄 Sweep All Servos Test</button>
+                        <button class="btn-toggle" id="btnResetCalibOffsets">🔄 Reset Offsets to 0°</button>
+                        <button class="btn-export" id="btnSaveCalibOffsets" style="background: linear-gradient(135deg, var(--accent-green), #00cc66); color: #000;">💾 Save Offsets</button>
+                    </div>
+                </div>
+
+                <!-- L298 Motor Controllers Direct Test Panel -->
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3>⚙️ L298 DUAL H-BRIDGE MOTOR TEST PANEL</h3>
+                        <span class="card-badge">Motors & H-Bridge</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label style="color:#ff5555; font-weight:bold;">Parrot 1 L298 Driver #1 Test:</label>
+                        <div class="btn-group" style="margin-bottom: 6px;">
+                            <button class="btn-toggle" id="btnTestP1MouthFwd">👄 Mouth Open (Fwd)</button>
+                            <button class="btn-toggle" id="btnTestP1EyesRev">👁️ Eyes Blink (Rev)</button>
+                            <button class="btn-toggle" id="btnTestP1Stop">🛑 Off</button>
+                        </div>
+                        <button class="btn-primary" id="btnTestP1WingsFlap" style="width:100%; margin-top:4px;">🪽 Test Wings Flap PWM (Channel B)</button>
+                    </div>
+
+                    <div class="control-group" style="margin-top: 15px;">
+                        <label style="color:#00d4ff; font-weight:bold;">Parrot 2 L298 Driver #2 Test:</label>
+                        <div class="btn-group" style="margin-bottom: 6px;">
+                            <button class="btn-toggle" id="btnTestP2MouthFwd">👄 Mouth Open (Fwd)</button>
+                            <button class="btn-toggle" id="btnTestP2EyesRev">👁️ Eyes Blink (Rev)</button>
+                            <button class="btn-toggle" id="btnTestP2Stop">🛑 Off</button>
+                        </div>
+                        <button class="btn-primary" id="btnTestP2WingsFlap" style="width:100%; margin-top:4px;">🪽 Test Wings Flap PWM (Channel B)</button>
+                    </div>
+                </div>
+
+                <!-- Spotlights & PWM Light Show Tests -->
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3>💡 SPOTLIGHTS & LIGHT SHOW TEST PANEL</h3>
+                        <span class="card-badge">PWM Dimmer LEDs</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label>2-DOF Spotlight Servos Circle & Strobe Tests:</label>
+                        <div class="btn-group" style="margin-bottom:6px;">
+                            <button class="btn-toggle" id="btnTestSpot1Circle">🔄 Spotlight 1 Circles</button>
+                            <button class="btn-toggle" id="btnTestSpot2Circle">🔄 Spotlight 2 Circles</button>
+                        </div>
+                        <div class="btn-group" style="margin-bottom:6px;">
+                            <button class="btn-action" id="btnTestSpot1Sweep">↕️ Spotlight 1 Pan/Tilt Sweep</button>
+                            <button class="btn-action" id="btnTestSpot2Sweep">↕️ Spotlight 2 Pan/Tilt Sweep</button>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-toggle" id="btnTestSpot1Strobe">💡 Strobe Spotlight 1</button>
+                            <button class="btn-toggle" id="btnTestSpot2Strobe">💡 Strobe Spotlight 2</button>
+                        </div>
+                    </div>
+
+                    <div class="control-group" style="margin-top: 15px;">
+                        <label>Stage Light Show Flash Test:</label>
+                        <button class="btn-action" id="btnTestFullLightShow" style="width: 100%;">🎆 Run Stage Strobe & Light Pulse</button>
+                    </div>
+                </div>
+
+                <!-- Small Birds & Relay Outputs Test Panel -->
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3>⚡ RELAYS & SMALL BIRD MOTORS DIRECT TEST</h3>
+                        <span class="card-badge">Chirp Relays & Servos</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Relay 1 & 2 Chirp Pulse Test:</label>
+                        <div class="btn-group">
+                            <button class="btn-toggle" id="btnTestRelay1Pulse">⚡ Click Relay 1 (Left)</button>
+                            <button class="btn-toggle" id="btnTestRelay2Pulse">⚡ Click Relay 2 (Right)</button>
+                        </div>
+                    </div>
+
+                    <div class="control-group" style="margin-top: 15px;">
+                        <label style="color:#ffd700; font-weight:bold;">Center Small Bird 3-DOF Perch & Motor Tests:</label>
+                        <div class="btn-group" style="margin-bottom:8px;">
+                            <button class="btn-toggle" id="btnTestCenterTurnSweep">🔄 Turn (Yaw 0° ➔ 180°)</button>
+                            <button class="btn-toggle" id="btnTestCenterBowSweep">↕️ Bow (Pitch 0° ➔ 180°)</button>
+                            <button class="btn-toggle" id="btnTestCenterShimmySweep">↔️ Shimmy (Roll 0° ➔ 180°)</button>
+                        </div>
+                        <div class="btn-group" style="margin-bottom:8px;">
+                            <button class="btn-toggle" id="btnTestCenterCircle" style="width:100%;">🔄 Center Bird 3D Circles Test</button>
+                        </div>
+                        <button class="btn-toggle" id="btnTestCenterMotorSpin" style="width:100%;">⚙️ Spin Center Bird Gearmotor & Chirp Beak</button>
+                    </div>
+
+                    <div class="control-group" style="margin-top: 15px;">
+                        <label>Main Stage Turntable Base Servo:</label>
+                        <button class="btn-toggle" id="btnTestBaseSweep" style="width:100%;">🔄 Sweep Turntable (0° ➔ 180° ➔ 90°)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: System Configuration Pane -->
+        <div id="tabConfig" class="tab-pane" style="display: none;">
+            <div class="config-grid">
+                <!-- Camera Selection -->
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3>📹 CAMERA SELECTION & VIDEO SETTINGS</h3>
+                        <span class="card-badge">Video Hardware</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="configCamSource">Choose Video Input Device / Camera:</label>
+                        <select id="configCamSource" class="config-select">
+                            <option value="usb">USB Webcam (/dev/video0)</option>
+                            <option value="csi">Raspberry Pi CSI Camera (Picamera2)</option>
+                            <option value="1">Secondary USB Camera (/dev/video1)</option>
+                            <option value="virtual">Virtual Stage Feed (Synthetic Frame)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="configCamResolution">Resolution:</label>
+                        <select id="configCamResolution" class="config-select">
+                            <option value="640x480">640 x 480 (Standard V4L2)</option>
+                            <option value="1280x720">1280 x 720 (720p HD)</option>
+                            <option value="1920x1080">1920 x 1080 (1080p Full HD)</option>
+                        </select>
+                    </div>
+                    <div class="control-group" style="margin-top: 10px;">
+                        <div class="btn-group">
+                            <button class="btn-action" id="btnConfigSwitchCam">🔀 Switch Camera Device</button>
+                            <button class="btn-action" id="btnConfigResetCam">🔄 Reset / Re-initialize Camera</button>
+                        </div>
+                    </div>
+                    <div class="camera-preview" style="height: 200px; margin-top: 10px;">
+                        <img id="configCamPreview" src="/api/camera/frame" alt="Camera Test Preview" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                </div>
+
+                <!-- Microphone Selection -->
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3>🎙️ MICROPHONE SELECTION & SENSITIVITY</h3>
+                        <span class="card-badge">Audio Input</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="configMicSelect">Select Microphone Input Device:</label>
+                        <select id="configMicSelect" class="config-select">
+                            <option value="default">Default System Microphone</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Microphone Level Test:</label>
+                        <button class="btn-primary" id="btnTestMicConfig">🎙️ Test Selected Microphone</button>
+                        <div class="mic-vu-bar" style="margin-top: 10px; height: 14px;">
+                            <div class="vu-fill" id="configVuFill"></div>
+                        </div>
+                    </div>
+                    <div class="slider-row" style="margin-top: 12px;">
+                        <span>Voice Detection Threshold:</span>
+                        <input type="range" min="5" max="60" value="15" id="configMicSensitivity">
+                        <span id="configMicSensitivityVal">15%</span>
+                    </div>
+                </div>
+
+                <!-- Audio Output Selection -->
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3>🔊 AUDIO OUTPUT & SPEAKER SELECTION</h3>
+                        <span class="card-badge">Audio Output</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="configAudioOutputSelect">Select Speaker / Audio Output Device:</label>
+                        <select id="configAudioOutputSelect" class="config-select">
+                            <option value="default">Default System Speaker Output</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Output Sound Test:</label>
+                        <button class="btn-action" id="btnTestAudioOutput" style="width:100%;">🔊 Play Test Tone / Chime</button>
+                    </div>
+                    <div class="slider-row" style="margin-top: 12px;">
+                        <span>Master Music Volume:</span>
+                        <input type="range" min="0" max="100" value="80" id="configMasterVol">
+                        <span id="configMasterVolVal">80%</span>
+                    </div>
+                </div>
+
+                <!-- AI Voice Accent & Gender Selection -->
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3>🗣️ AI VOICE & PARROT SPEECH ACCENTS</h3>
+                        <span class="card-badge">Voice Synthesis</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="configP1VoiceSelect" style="color:#ff5555; font-weight:bold;">🦜 Parrot 1 (Left) Voice Preset:</label>
+                        <select id="configP1VoiceSelect" class="config-select">
+                            <option value="ai_female_us">👩 Female US English (Standard Parrot)</option>
+                            <option value="ai_male_us">👨 Male US English (Deep Parrot)</option>
+                            <option value="ai_female_uk">🇬🇧 Female UK English (British Parrot)</option>
+                            <option value="ai_male_uk">🇬🇧 Male UK English (Gentleman Parrot)</option>
+                            <option value="ai_female_au">🇦🇺 Female Australian English (Aussie Parrot)</option>
+                            <option value="ai_male_au">🇦🇺 Male Australian English (Outback Parrot)</option>
+                            <option value="ai_female_in">🇮🇳 Female Indian English (Tropical Accent)</option>
+                            <option value="ai_female_ca">🇨🇦 Female Canadian English</option>
+                            <option value="ai_spanish">🇪🇸 Spanish Parrot (Español)</option>
+                            <option value="ai_french">🇫🇷 French Parrot (Français)</option>
+                        </select>
+                    </div>
+                    <div class="control-group" style="margin-top: 12px;">
+                        <label for="configP2VoiceSelect" style="color:#00d4ff; font-weight:bold;">🦜 Parrot 2 (Right) Voice Preset:</label>
+                        <select id="configP2VoiceSelect" class="config-select">
+                            <option value="ai_female_us">👩 Female US English (Standard Parrot)</option>
+                            <option value="ai_male_us" selected>👨 Male US English (Deep Parrot)</option>
+                            <option value="ai_female_uk">🇬🇧 Female UK English (British Parrot)</option>
+                            <option value="ai_male_uk">🇬🇧 Male UK English (Gentleman Parrot)</option>
+                            <option value="ai_female_au">🇦🇺 Female Australian English (Aussie Parrot)</option>
+                            <option value="ai_male_au">🇦🇺 Male Australian English (Outback Parrot)</option>
+                            <option value="ai_female_in">🇮🇳 Female Indian English (Tropical Accent)</option>
+                            <option value="ai_female_ca">🇨🇦 Female Canadian English</option>
+                            <option value="ai_spanish">🇪🇸 Spanish Parrot (Español)</option>
+                            <option value="ai_french">🇫🇷 French Parrot (Français)</option>
+                        </select>
+                    </div>
+                    <div class="control-group" style="margin-top: 12px;">
+                        <label>Test Voices:</label>
+                        <div style="display:flex; gap:8px; margin-bottom:8px;">
+                            <input type="text" id="configVoiceTestText" value="Squawk! Welcome to the Tropical Bird Show!" class="chat-input" style="flex:1;">
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn-action" id="btnTestP1Voice" style="flex:1;">🗣️ Test Parrot 1 Voice</button>
+                            <button class="btn-action" id="btnTestP2Voice" style="flex:1;">🗣️ Test Parrot 2 Voice</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: right; margin-top: 15px;">
+                <button class="btn-export" id="btnSaveConfig" style="padding: 12px 28px; font-size: 1rem; background: linear-gradient(135deg, var(--accent-green), #00cc66); color: #000;">💾 Save & Apply All Settings</button>
+            </div>
+        </div>
+
+        <!-- Tab 4: Interactive Wiring Diagram & GPIO Schematic Pane -->
+        <div id="tabWiring" class="tab-pane" style="display: none;">
+            <!-- Header & Toolbar -->
+            <div class="sync-switch-card" style="border-color: var(--accent-cyan); background: linear-gradient(135deg, #101a33, #080f22); margin-bottom: 20px;">
+                <div class="card-header" style="border:none; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="color: var(--accent-cyan); font-size: 1.3rem;">🔌 MASTER HARDWARE WIRING DIAGRAM & GPIO PINOUT SCHEMATIC</h3>
+                        <span class="sync-switch-info">Interactive schematic for Raspberry Pi 4/5, PCA9685 16-Ch PWM Servo Kit, L298N Motor Drivers, Relays & Power Rails</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-export" id="btnDownloadPdf" style="background: linear-gradient(135deg, var(--accent-yellow), #ff9900); color: #000;">📄 Save PDF Schematic</button>
+                        <button class="btn-export" id="btnDownloadCsv" style="background: linear-gradient(135deg, var(--accent-green), #00cc66); color: #000;">📊 Export CSV Spreadsheet</button>
+                        <button class="btn-export" id="btnDownloadSvg" style="background: linear-gradient(135deg, var(--accent-cyan), #0088ff); color: #000;">📥 Export SVG Diagram</button>
+                    </div>
+                </div>
+
+                <!-- Wiring Controls & Filter Bar -->
+                <div class="wiring-toolbar">
+                    <div class="wire-filter-group">
+                        <span class="filter-label">Filter Subsystem:</span>
+                        <button class="wire-filter-btn active" data-filter="all">🌐 All Wires</button>
+                        <button class="wire-filter-btn" data-filter="power">⚡ Power & Common GND</button>
+                        <button class="wire-filter-btn" data-filter="i2c">📡 I2C / PCA9685</button>
+                        <button class="wire-filter-btn" data-filter="l298">⚙️ L298N Motor Drivers</button>
+                        <button class="wire-filter-btn" data-filter="relays">🐥 Relays & Motors</button>
+                        <button class="wire-filter-btn" data-filter="servos">🔄 Servos & Spotlights</button>
+                    </div>
+                    <div class="search-pin-group">
+                        <input type="text" id="pinSearchInput" placeholder="🔍 Search Pin #, GPIO or Component (e.g. GPIO 18, L298, Ch 0)..." class="chat-input" style="padding: 8px 12px; font-size: 0.85rem;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hardware Specs & Modules Overview Cards Grid -->
+            <div class="config-grid" style="margin-bottom: 20px;">
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3 style="color: var(--accent-cyan);">🍓 RASPBERRY PI 4/5 MASTER CONTROLLER</h3>
+                        <span class="card-badge">Main MCU</span>
+                    </div>
+                    <div style="font-size:0.85rem; color: var(--text-muted); line-height: 1.5;">
+                        <p><strong>Primary Function:</strong> Executes Python web server, Gemini AI voice & vision integration, and GPIO hardware actuation.</p>
+                        <p style="margin-top: 4px;"><strong>Key Ports:</strong> 40-pin GPIO Header, I2C Bus (SDA = GPIO 2 / Pin 3, SCL = GPIO 3 / Pin 5), CSI Camera Connector, 3.5mm Audio Output.</p>
+                    </div>
+                </div>
+
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3 style="color: var(--accent-cyan);">🎛️ PCA9685 16-CHANNEL 12-BIT PWM DRIVER</h3>
+                        <span class="card-badge">I2C: 0x40</span>
+                    </div>
+                    <div style="font-size:0.85rem; color: var(--text-muted); line-height: 1.5;">
+                        <p><strong>Primary Function:</strong> Provides precise 12-bit PWM signal control for all 16 stage servo motors & LED spotlights.</p>
+                        <p style="margin-top: 4px;"><strong>Channels:</strong> Ch 0-2 (P1 3-DOF Perch), Ch 3-5 (P1 Spot Pan/Tilt/Dim), Ch 6-8 (P2 3-DOF Perch), Ch 9-11 (P2 Spot Pan/Tilt/Dim), Ch 12-14 (Center Bird 3-DOF), Ch 15 (Base Turntable).</p>
+                    </div>
+                </div>
+
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3 style="color: var(--accent-magenta);">⚙️ DUAL L298N H-BRIDGE MOTOR DRIVERS</h3>
+                        <span class="card-badge">2x L298 Modules</span>
+                    </div>
+                    <div style="font-size:0.85rem; color: var(--text-muted); line-height: 1.5;">
+                        <p><strong>Driver #1 (Parrot 1):</strong> Ch A (GPIO 18 ENA, GPIO 23 IN1, GPIO 24 IN2) for Mouth/Eyes, Ch B (GPIO 19 ENB, GPIO 25 IN3, GPIO 8 IN4) for Flapping Wings.</p>
+                        <p style="margin-top: 4px;"><strong>Driver #2 (Parrot 2):</strong> Ch A (GPIO 12 ENA, GPIO 16 IN1, GPIO 20 IN2) for Mouth/Eyes, Ch B (GPIO 13 ENB, GPIO 21 IN3, GPIO 26 IN4) for Flapping Wings.</p>
+                    </div>
+                </div>
+
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3 style="color: var(--accent-yellow);">🐥 RELAYS, SMALL BIRD MOTORS & POWER</h3>
+                        <span class="card-badge">Chirp & Power</span>
+                    </div>
+                    <div style="font-size:0.85rem; color: var(--text-muted); line-height: 1.5;">
+                        <p><strong>Chirp Circuit Relays:</strong> Relay #1 (GPIO 17 / Pin 11) for Front Left Bird, Relay #2 (GPIO 27 / Pin 13) for Front Right Bird.</p>
+                        <p style="margin-top: 4px;"><strong>Power Setup:</strong> Dual Power Rail - 5V/6V 12A Power Supply for Servos & Motors + 5V 3A for Pi with Shared Common Ground Bus.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual SVG Diagram Card -->
+            <div class="panel-card" style="padding: 15px; overflow-x: auto; position: relative;">
+                <div class="card-header">
+                    <h3>⚡ INTERACTIVE HARDWARE CIRCUIT SCHEMATIC</h3>
+                    <span class="card-badge" id="wireFilterBadge">Showing All Connections</span>
+                </div>
+                <div id="svgContainer" class="svg-schematic-wrapper">
+                    <!-- SVG Circuit Diagram generated dynamically and rendered below -->
+                    <svg id="wiringSvg" viewBox="0 0 1350 920" xmlns="http://www.w3.org/2000/svg" style="width: 100%; min-width: 1000px; height: auto; background: #060913; border-radius: 8px;">
+                        <defs>
+                            <!-- Glow filters for wire hover/highlight -->
+                            <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feMerge>
+                                    <feMergeNode in="blur" />
+                                    <feMergeNode in="SourceGraphic" />
+                                </feMerge>
+                            </filter>
+                            <filter id="glowYellow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feMerge>
+                                    <feMergeNode in="blur" />
+                                    <feMergeNode in="SourceGraphic" />
+                                </feMerge>
+                            </filter>
+                        </defs>
+
+                        <!-- GRID BACKGROUND -->
+                        <pattern id="gridPattern" width="30" height="30" patternUnits="userSpaceOnUse">
+                            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+                        </pattern>
+                        <rect width="100%" height="100%" fill="url(#gridPattern)" />
+
+                        <!-- 1. POWER SUPPLY MODULE (Top Center Left) -->
+                        <g id="modPower" class="svg-module">
+                            <rect x="40" y="30" width="280" height="130" rx="10" fill="#141c2e" stroke="#ff3344" stroke-width="2" />
+                            <rect x="40" y="30" width="280" height="30" rx="10" fill="#ff3344" opacity="0.2" />
+                            <text x="180" y="52" fill="#ff5566" font-weight="bold" font-size="14" text-anchor="middle">🔋 MAIN DUAL POWER SUPPLY</text>
+                            
+                            <!-- Terminals -->
+                            <rect x="60" y="80" width="110" height="35" rx="5" fill="#1f0f13" stroke="#ff3344" />
+                            <text x="115" y="102" fill="#ff8899" font-size="11" font-weight="bold" text-anchor="middle">+5V / +6V 12A (Servos)</text>
+                            
+                            <rect x="190" y="80" width="110" height="35" rx="5" fill="#0f1923" stroke="#00f0ff" />
+                            <text x="245" y="102" fill="#00f0ff" font-size="11" font-weight="bold" text-anchor="middle">+5V 3A (Raspberry Pi)</text>
+                            
+                            <rect x="125" y="125" width="110" height="25" rx="4" fill="#111" stroke="#aaaaaa" />
+                            <text x="180" y="142" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">⚡ COMMON GND BUS</text>
+                        </g>
+
+                        <!-- 2. RASPBERRY PI 40-PIN HEADER BLOCK (Left Center) -->
+                        <g id="modPi" class="svg-module">
+                            <rect x="40" y="190" width="300" height="690" rx="12" fill="#0e1828" stroke="#00f0ff" stroke-width="2" />
+                            <rect x="40" y="190" width="300" height="36" rx="12" fill="#00f0ff" opacity="0.2" />
+                            <text x="190" y="214" fill="#00f0ff" font-weight="bold" font-size="15" text-anchor="middle">🍓 RASPBERRY PI 40-PIN GPIO HEADER</text>
+                            
+                            <!-- 40 Pin Rows -->
+                            <!-- Pin 1 (+3.3V) & Pin 2 (+5V) -->
+                            <rect x="55" y="240" width="125" height="26" rx="4" fill="#1a233a" stroke="#ffaa00" />
+                            <text x="117" y="257" fill="#ffaa00" font-size="10" font-weight="bold" text-anchor="middle">Pin 1: 3.3V Power</text>
+                            <rect x="195" y="240" width="130" height="26" rx="4" fill="#2a141a" stroke="#ff3344" />
+                            <text x="260" y="257" fill="#ff5566" font-size="10" font-weight="bold" text-anchor="middle">Pin 2: 5V Power</text>
+
+                            <!-- Pin 3 (SDA) & Pin 4 (+5V) -->
+                            <rect x="55" y="272" width="125" height="26" rx="4" fill="#002b3d" stroke="#00f0ff" class="pin-box" data-pin="3" />
+                            <text x="117" y="289" fill="#00f0ff" font-size="10" font-weight="bold" text-anchor="middle">Pin 3: GPIO 2 (SDA1)</text>
+                            <rect x="195" y="272" width="130" height="26" rx="4" fill="#2a141a" stroke="#ff3344" />
+                            <text x="260" y="289" fill="#ff5566" font-size="10" font-weight="bold" text-anchor="middle">Pin 4: 5V Power</text>
+
+                            <!-- Pin 5 (SCL) & Pin 6 (GND) -->
+                            <rect x="55" y="304" width="125" height="26" rx="4" fill="#002b3d" stroke="#00f0ff" class="pin-box" data-pin="5" />
+                            <text x="117" y="321" fill="#00f0ff" font-size="10" font-weight="bold" text-anchor="middle">Pin 5: GPIO 3 (SCL1)</text>
+                            <rect x="195" y="304" width="130" height="26" rx="4" fill="#181818" stroke="#aaaaaa" class="pin-box" data-pin="6" />
+                            <text x="260" y="321" fill="#cccccc" font-size="10" font-weight="bold" text-anchor="middle">Pin 6: Ground (GND)</text>
+
+                            <!-- Pin 11 (GPIO 17) & Pin 12 (GPIO 18) -->
+                            <rect x="55" y="336" width="125" height="26" rx="4" fill="#292000" stroke="#ffd700" class="pin-box" data-pin="11" />
+                            <text x="117" y="353" fill="#ffd700" font-size="10" font-weight="bold" text-anchor="middle">Pin 11: GPIO 17 (Rly 1)</text>
+                            <rect x="195" y="336" width="130" height="26" rx="4" fill="#290022" stroke="#ff00cc" class="pin-box" data-pin="12" />
+                            <text x="260" y="353" fill="#ff00cc" font-size="10" font-weight="bold" text-anchor="middle">Pin 12: GPIO 18 (P1 ENA)</text>
+
+                            <!-- Pin 13 (GPIO 27) & Pin 14 (GND) -->
+                            <rect x="55" y="368" width="125" height="26" rx="4" fill="#292000" stroke="#ffd700" class="pin-box" data-pin="13" />
+                            <text x="117" y="385" fill="#ffd700" font-size="10" font-weight="bold" text-anchor="middle">Pin 13: GPIO 27 (Rly 2)</text>
+                            <rect x="195" y="368" width="130" height="26" rx="4" fill="#181818" stroke="#aaaaaa" class="pin-box" data-pin="14" />
+                            <text x="260" y="385" fill="#cccccc" font-size="10" font-weight="bold" text-anchor="middle">Pin 14: Ground (GND)</text>
+
+                            <!-- Pin 15 (GPIO 22) & Pin 16 (GPIO 16) -->
+                            <rect x="55" y="400" width="125" height="26" rx="4" fill="#002b20" stroke="#00ff88" class="pin-box" data-pin="15" />
+                            <text x="117" y="417" fill="#00ff88" font-size="10" font-weight="bold" text-anchor="middle">Pin 15: GPIO 22 (Ctr Mtr)</text>
+                            <rect x="195" y="400" width="130" height="26" rx="4" fill="#001a33" stroke="#3399ff" class="pin-box" data-pin="16" />
+                            <text x="260" y="417" fill="#3399ff" font-size="10" font-weight="bold" text-anchor="middle">Pin 16: GPIO 23 (P1 IN1)</text>
+
+                            <!-- Pin 18 (GPIO 24) & Pin 22 (GPIO 25) -->
+                            <rect x="55" y="432" width="125" height="26" rx="4" fill="#001a33" stroke="#3399ff" class="pin-box" data-pin="18" />
+                            <text x="117" y="449" fill="#3399ff" font-size="10" font-weight="bold" text-anchor="middle">Pin 18: GPIO 24 (P1 IN2)</text>
+                            <rect x="195" y="432" width="130" height="26" rx="4" fill="#290022" stroke="#ff00cc" class="pin-box" data-pin="22" />
+                            <text x="260" y="449" fill="#ff00cc" font-size="10" font-weight="bold" text-anchor="middle">Pin 22: GPIO 25 (P1 IN3)</text>
+
+                            <!-- Pin 24 (GPIO 8) & Pin 32 (GPIO 12) -->
+                            <rect x="55" y="464" width="125" height="26" rx="4" fill="#290022" stroke="#ff00cc" class="pin-box" data-pin="24" />
+                            <text x="117" y="481" fill="#ff00cc" font-size="10" font-weight="bold" text-anchor="middle">Pin 24: GPIO 8 (P1 IN4)</text>
+                            <rect x="195" y="464" width="130" height="26" rx="4" fill="#002b3d" stroke="#00f0ff" class="pin-box" data-pin="32" />
+                            <text x="260" y="481" fill="#00f0ff" font-size="10" font-weight="bold" text-anchor="middle">Pin 32: GPIO 12 (P2 ENA)</text>
+
+                            <!-- Pin 33 (GPIO 13) & Pin 35 (GPIO 19) -->
+                            <rect x="55" y="496" width="125" height="26" rx="4" fill="#002b3d" stroke="#00f0ff" class="pin-box" data-pin="33" />
+                            <text x="117" y="513" fill="#00f0ff" font-size="10" font-weight="bold" text-anchor="middle">Pin 33: GPIO 13 (P2 ENB)</text>
+                            <rect x="195" y="496" width="130" height="26" rx="4" fill="#290022" stroke="#ff00cc" class="pin-box" data-pin="35" />
+                            <text x="260" y="513" fill="#ff00cc" font-size="10" font-weight="bold" text-anchor="middle">Pin 35: GPIO 19 (P1 ENB)</text>
+
+                            <!-- Pin 36 (GPIO 16) & Pin 37 (GPIO 26) -->
+                            <rect x="55" y="528" width="125" height="26" rx="4" fill="#002b3d" stroke="#00f0ff" class="pin-box" data-pin="36" />
+                            <text x="117" y="545" fill="#00f0ff" font-size="10" font-weight="bold" text-anchor="middle">Pin 36: GPIO 16 (P2 IN1)</text>
+                            <rect x="195" y="528" width="130" height="26" rx="4" fill="#002b3d" stroke="#00f0ff" class="pin-box" data-pin="37" />
+                            <text x="260" y="545" fill="#00f0ff" font-size="10" font-weight="bold" text-anchor="middle">Pin 37: GPIO 26 (P2 IN4)</text>
+
+                            <!-- Pin 38 (GPIO 20) & Pin 40 (GPIO 21) -->
+                            <rect x="55" y="560" width="125" height="26" rx="4" fill="#002b3d" stroke="#00f0ff" class="pin-box" data-pin="38" />
+                            <text x="117" y="577" fill="#00f0ff" font-size="10" font-weight="bold" text-anchor="middle">Pin 38: GPIO 20 (P2 IN2)</text>
+                            <rect x="195" y="560" width="130" height="26" rx="4" fill="#002b3d" stroke="#00f0ff" class="pin-box" data-pin="40" />
+                            <text x="260" y="577" fill="#00f0ff" font-size="10" font-weight="bold" text-anchor="middle">Pin 40: GPIO 21 (P2 IN3)</text>
+
+                            <!-- CSI Camera & Audio Output Footnotes -->
+                            <rect x="55" y="605" width="270" height="40" rx="6" fill="#131c33" stroke="#2d3f6d" />
+                            <text x="190" y="622" fill="#8a99ad" font-size="10" font-weight="bold" text-anchor="middle">📹 CSI Camera Ribbon Connector</text>
+                            <text x="190" y="637" fill="#8a99ad" font-size="10" text-anchor="middle">Audio: 3.5mm Headphone Jack / USB Audio</text>
+                        </g>
+
+                        <!-- 3. PCA9685 16-CHANNEL PWM SERVO DRIVER (Center Top) -->
+                        <g id="modPca" class="svg-module">
+                            <rect x="420" y="30" width="380" height="380" rx="12" fill="#0c1d2e" stroke="#00f0ff" stroke-width="2" />
+                            <rect x="420" y="30" width="380" height="34" rx="12" fill="#00f0ff" opacity="0.2" />
+                            <text x="610" y="53" fill="#00f0ff" font-weight="bold" font-size="14" text-anchor="middle">🎛️ PCA9685 16-CHANNEL 12-BIT PWM SERVO DRIVER (I2C: 0x40)</text>
+
+                            <!-- I2C Power Terminals -->
+                            <rect x="440" y="75" width="340" height="35" rx="6" fill="#13243a" stroke="#00f0ff" />
+                            <text x="610" y="97" fill="#00f0ff" font-size="11" font-weight="bold" text-anchor="middle">VCC: 5V (Pi) | GND: Common | SDA: GPIO 2 | SCL: GPIO 3 | V+: Ext 5V/6V Power</text>
+
+                            <!-- Channels 0 - 15 Grid -->
+                            <g font-size="10" font-weight="bold">
+                                <!-- Ch 0 - 2: Parrot 1 3-DOF -->
+                                <rect x="440" y="120" width="105" height="30" rx="4" fill="#291218" stroke="#ff3344" />
+                                <text x="492" y="139" fill="#ff6677" text-anchor="middle">Ch 0: P1 Turn (Yaw)</text>
+
+                                <rect x="555" y="120" width="105" height="30" rx="4" fill="#291218" stroke="#ff3344" />
+                                <text x="607" y="139" fill="#ff6677" text-anchor="middle">Ch 1: P1 Bow (Pitch)</text>
+
+                                <rect x="670" y="120" width="110" height="30" rx="4" fill="#291218" stroke="#ff3344" />
+                                <text x="725" y="139" fill="#ff6677" text-anchor="middle">Ch 2: P1 Shimmy (Roll)</text>
+
+                                <!-- Ch 3 - 5: Parrot 1 Spotlight -->
+                                <rect x="440" y="160" width="105" height="30" rx="4" fill="#292000" stroke="#ffd700" />
+                                <text x="492" y="179" fill="#ffd700" text-anchor="middle">Ch 3: P1 Spot Pan</text>
+
+                                <rect x="555" y="160" width="105" height="30" rx="4" fill="#292000" stroke="#ffd700" />
+                                <text x="607" y="179" fill="#ffd700" text-anchor="middle">Ch 4: P1 Spot Tilt</text>
+
+                                <rect x="670" y="160" width="110" height="30" rx="4" fill="#292000" stroke="#ffd700" />
+                                <text x="725" y="179" fill="#ffd700" text-anchor="middle">Ch 5: P1 Spot Dimmer</text>
+
+                                <!-- Ch 6 - 8: Parrot 2 3-DOF -->
+                                <rect x="440" y="200" width="105" height="30" rx="4" fill="#002b3d" stroke="#00f0ff" />
+                                <text x="492" y="219" fill="#00f0ff" text-anchor="middle">Ch 6: P2 Turn (Yaw)</text>
+
+                                <rect x="555" y="200" width="105" height="30" rx="4" fill="#002b3d" stroke="#00f0ff" />
+                                <text x="607" y="219" fill="#00f0ff" text-anchor="middle">Ch 7: P2 Bow (Pitch)</text>
+
+                                <rect x="670" y="200" width="110" height="30" rx="4" fill="#002b3d" stroke="#00f0ff" />
+                                <text x="725" y="219" fill="#00f0ff" text-anchor="middle">Ch 8: P2 Shimmy (Roll)</text>
+
+                                <!-- Ch 9 - 11: Parrot 2 Spotlight -->
+                                <rect x="440" y="240" width="105" height="30" rx="4" fill="#292000" stroke="#ffd700" />
+                                <text x="492" y="259" fill="#ffd700" text-anchor="middle">Ch 9: P2 Spot Pan</text>
+
+                                <rect x="555" y="240" width="105" height="30" rx="4" fill="#292000" stroke="#ffd700" />
+                                <text x="607" y="259" fill="#ffd700" text-anchor="middle">Ch 10: P2 Spot Tilt</text>
+
+                                <rect x="670" y="240" width="110" height="30" rx="4" fill="#292000" stroke="#ffd700" />
+                                <text x="725" y="259" fill="#ffd700" text-anchor="middle">Ch 11: P2 Spot Dimmer</text>
+
+                                <!-- Ch 12 - 14: Center Bird 3-DOF -->
+                                <rect x="440" y="280" width="105" height="30" rx="4" fill="#002b20" stroke="#00ff88" />
+                                <text x="492" y="299" fill="#00ff88" text-anchor="middle">Ch 12: Ctr Turn (Yaw)</text>
+
+                                <rect x="555" y="280" width="105" height="30" rx="4" fill="#002b20" stroke="#00ff88" />
+                                <text x="607" y="299" fill="#00ff88" text-anchor="middle">Ch 13: Ctr Bow (Pitch)</text>
+
+                                <rect x="670" y="280" width="110" height="30" rx="4" fill="#002b20" stroke="#00ff88" />
+                                <text x="725" y="299" fill="#00ff88" text-anchor="middle">Ch 14: Ctr Shimmy (Roll)</text>
+
+                                <!-- Ch 15: Main Stage Turntable Base -->
+                                <rect x="440" y="320" width="340" height="30" rx="4" fill="#1b122e" stroke="#a855f7" />
+                                <text x="610" y="339" fill="#a855f7" text-anchor="middle">Ch 15: Main Stage Turntable Base Servo (360° / 180° Continuous Base)</text>
+                            </g>
+                        </g>
+
+                        <!-- 4. L298N CONTROLLER #1 (Parrot 1 - Left) -->
+                        <g id="modL298_1" class="svg-module">
+                            <rect x="420" y="430" width="380" height="210" rx="12" fill="#1f0f18" stroke="#ff00cc" stroke-width="2" />
+                            <rect x="420" y="430" width="380" height="32" rx="12" fill="#ff00cc" opacity="0.2" />
+                            <text x="610" y="452" fill="#ff00cc" font-weight="bold" font-size="14" text-anchor="middle">⚙️ L298N DUAL H-BRIDGE #1 (PARROT 1 - LEFT TALL PARROT)</text>
+
+                            <!-- Logic Inputs -->
+                            <g font-size="10" font-weight="bold">
+                                <rect x="440" y="475" width="105" height="28" rx="4" fill="#290022" stroke="#ff00cc" />
+                                <text x="492" y="493" fill="#ff00cc" text-anchor="middle">ENA: GPIO 18 (Pin 12)</text>
+
+                                <rect x="555" y="475" width="105" height="28" rx="4" fill="#131c33" stroke="#3399ff" />
+                                <text x="607" y="493" fill="#3399ff" text-anchor="middle">IN1: GPIO 23 (Pin 16)</text>
+
+                                <rect x="670" y="475" width="110" height="28" rx="4" fill="#131c33" stroke="#3399ff" />
+                                <text x="725" y="493" fill="#3399ff" text-anchor="middle">IN2: GPIO 24 (Pin 18)</text>
+
+                                <rect x="440" y="515" width="105" height="28" rx="4" fill="#290022" stroke="#ff00cc" />
+                                <text x="492" y="533" fill="#ff00cc" text-anchor="middle">ENB: GPIO 19 (Pin 35)</text>
+
+                                <rect x="555" y="515" width="105" height="28" rx="4" fill="#290022" stroke="#ff00cc" />
+                                <text x="607" y="533" fill="#ff00cc" text-anchor="middle">IN3: GPIO 25 (Pin 22)</text>
+
+                                <rect x="670" y="515" width="110" height="28" rx="4" fill="#290022" stroke="#ff00cc" />
+                                <text x="725" y="533" fill="#ff00cc" text-anchor="middle">IN4: GPIO 8 (Pin 24)</text>
+
+                                <!-- Outputs -->
+                                <rect x="440" y="555" width="160" height="35" rx="5" fill="#2b141a" stroke="#ff3344" />
+                                <text x="520" y="572" fill="#ff6677" text-anchor="middle">OUT1 / OUT2 (Channel A):</text>
+                                <text x="520" y="584" fill="#ffffff" font-size="9" text-anchor="middle">Mouth Open / Eyes Blink</text>
+
+                                <rect x="620" y="555" width="160" height="35" rx="5" fill="#2b0020" stroke="#ff00cc" />
+                                <text x="700" y="572" fill="#ff66cc" text-anchor="middle">OUT3 / OUT4 (Channel B):</text>
+                                <text x="700" y="584" fill="#ffffff" font-size="9" text-anchor="middle">Flapping Wings Motor</text>
+                            </g>
+                        </g>
+
+                        <!-- 5. L298N CONTROLLER #2 (Parrot 2 - Right) -->
+                        <g id="modL298_2" class="svg-module">
+                            <rect x="420" y="660" width="380" height="220" rx="12" fill="#0f1f2e" stroke="#00f0ff" stroke-width="2" />
+                            <rect x="420" y="660" width="380" height="32" rx="12" fill="#00f0ff" opacity="0.2" />
+                            <text x="610" y="682" fill="#00f0ff" font-weight="bold" font-size="14" text-anchor="middle">⚙️ L298N DUAL H-BRIDGE #2 (PARROT 2 - RIGHT TALL PARROT)</text>
+
+                            <!-- Logic Inputs -->
+                            <g font-size="10" font-weight="bold">
+                                <rect x="440" y="705" width="105" height="28" rx="4" fill="#002b3d" stroke="#00f0ff" />
+                                <text x="492" y="723" fill="#00f0ff" text-anchor="middle">ENA: GPIO 12 (Pin 32)</text>
+
+                                <rect x="555" y="705" width="105" height="28" rx="4" fill="#002b3d" stroke="#00f0ff" />
+                                <text x="607" y="723" fill="#00f0ff" text-anchor="middle">IN1: GPIO 16 (Pin 36)</text>
+
+                                <rect x="670" y="705" width="110" height="28" rx="4" fill="#002b3d" stroke="#00f0ff" />
+                                <text x="725" y="723" fill="#00f0ff" text-anchor="middle">IN2: GPIO 20 (Pin 38)</text>
+
+                                <rect x="440" y="745" width="105" height="28" rx="4" fill="#002b3d" stroke="#00f0ff" />
+                                <text x="492" y="763" fill="#00f0ff" text-anchor="middle">ENB: GPIO 13 (Pin 33)</text>
+
+                                <rect x="555" y="745" width="105" height="28" rx="4" fill="#002b3d" stroke="#00f0ff" />
+                                <text x="607" y="761" fill="#00f0ff" text-anchor="middle">IN3: GPIO 21 (Pin 40)</text>
+
+                                <rect x="670" y="745" width="110" height="28" rx="4" fill="#002b3d" stroke="#00f0ff" />
+                                <text x="725" y="763" fill="#00f0ff" text-anchor="middle">IN4: GPIO 26 (Pin 37)</text>
+
+                                <!-- Outputs -->
+                                <rect x="440" y="785" width="160" height="35" rx="5" fill="#002233" stroke="#00f0ff" />
+                                <text x="520" y="802" fill="#00f0ff" text-anchor="middle">OUT1 / OUT2 (Channel A):</text>
+                                <text x="520" y="814" fill="#ffffff" font-size="9" text-anchor="middle">Mouth Open / Eyes Blink</text>
+
+                                <rect x="620" y="785" width="160" height="35" rx="5" fill="#002233" stroke="#00f0ff" />
+                                <text x="700" y="802" fill="#00f0ff" text-anchor="middle">OUT3 / OUT4 (Channel B):</text>
+                                <text x="700" y="814" fill="#ffffff" font-size="9" text-anchor="middle">Flapping Wings Motor</text>
+                            </g>
+                        </g>
+
+                        <!-- 6. RELAY MODULE & SMALL BIRDS (Right Top) -->
+                        <g id="modRelay" class="svg-module">
+                            <rect x="840" y="30" width="470" height="220" rx="12" fill="#211800" stroke="#ffd700" stroke-width="2" />
+                            <rect x="840" y="30" width="470" height="32" rx="12" fill="#ffd700" opacity="0.2" />
+                            <text x="1075" y="52" fill="#ffd700" font-weight="bold" font-size="14" text-anchor="middle">🐣 2-CHANNEL RELAY BOARD & SMALL BIRD CHIRP CIRCUITS</text>
+
+                            <!-- Relay 1 -->
+                            <rect x="860" y="75" width="200" height="60" rx="6" fill="#2d2200" stroke="#ffd700" />
+                            <text x="960" y="95" fill="#ffd700" font-weight="bold" font-size="11" text-anchor="middle">RELAY #1 (Left Small Bird)</text>
+                            <text x="960" y="112" fill="#ffffff" font-size="10" text-anchor="middle">IN: GPIO 17 (Pin 11) | VCC: 5V | GND</text>
+
+                            <!-- Relay 2 -->
+                            <rect x="1090" y="75" width="200" height="60" rx="6" fill="#2d2200" stroke="#ffd700" />
+                            <text x="1190" y="95" fill="#ffd700" font-weight="bold" font-size="11" text-anchor="middle">RELAY #2 (Right Small Bird)</text>
+                            <text x="1190" y="112" fill="#ffffff" font-size="10" text-anchor="middle">IN: GPIO 27 (Pin 13) | VCC: 5V | GND</text>
+
+                            <!-- Center Bird Motor Transistor Driver -->
+                            <rect x="860" y="150" width="430" height="50" rx="6" fill="#002b20" stroke="#00ff88" />
+                            <text x="1075" y="170" fill="#00ff88" font-weight="bold" font-size="11" text-anchor="middle">⚙️ CENTER SMALL BIRD MOTOR TRANSISTOR / MOSFET DRIVER</text>
+                            <text x="1075" y="188" fill="#ffffff" font-size="10" text-anchor="middle">GATE / BASE: GPIO 22 (Pin 15) | OUT: Beak & Gearmotor Pulse</text>
+                        </g>
+
+                        <!-- 7. ANIMATRONIC STAGE HARDWARE OUTPUTS (Right Bottom) -->
+                        <g id="modStage" class="svg-module">
+                            <rect x="840" y="270" width="470" height="610" rx="12" fill="#121729" stroke="#00ff88" stroke-width="2" />
+                            <rect x="840" y="270" width="470" height="34" rx="12" fill="#00ff88" opacity="0.2" />
+                            <text x="1075" y="293" fill="#00ff88" font-weight="bold" font-size="14" text-anchor="middle">🎭 ANIMATRONIC STAGE ACTUATORS & HARDWARE ENDPOINTS</text>
+
+                            <!-- Parrot 1 Output Summary -->
+                            <rect x="860" y="320" width="210" height="120" rx="8" fill="#291218" stroke="#ff3344" />
+                            <text x="965" y="342" fill="#ff6677" font-weight="bold" font-size="12" text-anchor="middle">🦜 PARROT 1 (LEFT)</text>
+                            <text x="965" y="362" fill="#dddddd" font-size="10" text-anchor="middle">• 3-DOF Perch: PCA Ch 0, 1, 2</text>
+                            <text x="965" y="380" fill="#dddddd" font-size="10" text-anchor="middle">• Spotlight 2-DOF: PCA Ch 3, 4, 5</text>
+                            <text x="965" y="398" fill="#dddddd" font-size="10" text-anchor="middle">• Mouth / Eyes: L298 #1 Ch A</text>
+                            <text x="965" y="416" fill="#dddddd" font-size="10" text-anchor="middle">• Wings Flap: L298 #1 Ch B</text>
+
+                            <!-- Parrot 2 Output Summary -->
+                            <rect x="1090" y="320" width="200" height="120" rx="8" fill="#002b3d" stroke="#00f0ff" />
+                            <text x="1190" y="342" fill="#00f0ff" font-weight="bold" font-size="12" text-anchor="middle">🦜 PARROT 2 (RIGHT)</text>
+                            <text x="1190" y="362" fill="#dddddd" font-size="10" text-anchor="middle">• 3-DOF Perch: PCA Ch 6, 7, 8</text>
+                            <text x="1190" y="380" fill="#dddddd" font-size="10" text-anchor="middle">• Spotlight 2-DOF: PCA Ch 9, 10, 11</text>
+                            <text x="1190" y="398" fill="#dddddd" font-size="10" text-anchor="middle">• Mouth / Eyes: L298 #2 Ch A</text>
+                            <text x="1190" y="416" fill="#dddddd" font-size="10" text-anchor="middle">• Wings Flap: L298 #2 Ch B</text>
+
+                            <!-- Small Birds Summary -->
+                            <rect x="860" y="455" width="430" height="130" rx="8" fill="#211d00" stroke="#ffd700" />
+                            <text x="1075" y="477" fill="#ffd700" font-weight="bold" font-size="12" text-anchor="middle">🐥 5 SMALL BIRDS ARRAY</text>
+                            <text x="1075" y="497" fill="#dddddd" font-size="10" text-anchor="middle">• Center Bird: 3-DOF Perch (PCA Ch 12, 13, 14) + Beak Motor (GPIO 22)</text>
+                            <text x="1075" y="515" fill="#dddddd" font-size="10" text-anchor="middle">• Front Left Bird: Chirp Relay #1 (GPIO 17) + Spotlight + Motor</text>
+                            <text x="1075" y="533" fill="#dddddd" font-size="10" text-anchor="middle">• Front Right Bird: Chirp Relay #2 (GPIO 27) + Spotlight + Motor</text>
+                            <text x="1075" y="551" fill="#dddddd" font-size="10" text-anchor="middle">• Rear Left & Rear Right Birds: Spotlights + Movement Motors</text>
+
+                            <!-- Turntable Base Servo Summary -->
+                            <rect x="860" y="600" width="430" height="70" rx="8" fill="#1f1230" stroke="#a855f7" />
+                            <text x="1075" y="625" fill="#a855f7" font-weight="bold" font-size="12" text-anchor="middle">🔄 MAIN STAGE ROTATING TURNTABLE</text>
+                            <text x="1075" y="645" fill="#dddddd" font-size="10" text-anchor="middle">Base Rotation Servo Motor: PCA9685 Channel 15</text>
+                        </g>
+
+                        <!-- WIRE PATHS (Color Coded & Interactive) -->
+                        <g id="wireGroup" stroke-width="2.5" fill="none" opacity="0.85">
+                            <!-- Power Wires -->
+                            <!-- Pi 5V & GND to Power Supply -->
+                            <path class="wire wire-power" data-category="power" d="M 260 240 L 260 170 L 245 170 L 245 115" stroke="#ff3344" stroke-dasharray="4,2" />
+                            <path class="wire wire-power" data-category="power" d="M 260 304 L 260 180 L 180 180 L 180 150" stroke="#aaaaaa" />
+
+                            <!-- I2C Bus Wires (Pin 3 SDA, Pin 5 SCL) -->
+                            <path class="wire wire-i2c" data-category="i2c" d="M 180 272 L 390 272 L 390 92 L 440 92" stroke="#00f0ff" stroke-width="3" />
+                            <path class="wire wire-i2c" data-category="i2c" d="M 180 304 L 380 304 L 380 84 L 440 84" stroke="#3399ff" stroke-width="3" />
+
+                            <!-- Relay Wires (Pin 11 GPIO 17, Pin 13 GPIO 27) -->
+                            <path class="wire wire-relays" data-category="relays" d="M 180 336 L 360 336 L 360 100 L 860 100" stroke="#ffd700" stroke-width="3" />
+                            <path class="wire wire-relays" data-category="relays" d="M 180 368 L 370 368 L 370 120 L 1090 120" stroke="#ffa500" stroke-width="3" />
+
+                            <!-- Center Motor Transistor Wire (Pin 15 GPIO 22) -->
+                            <path class="wire wire-relays" data-category="relays" d="M 180 400 L 380 400 L 380 175 L 860 175" stroke="#00ff88" stroke-width="3" />
+
+                            <!-- L298 Driver #1 Wires (Pin 12 ENA, Pin 16 IN1, Pin 18 IN2, Pin 35 ENB, Pin 22 IN3, Pin 24 IN4) -->
+                            <path class="wire wire-l298" data-category="l298" d="M 325 336 L 400 336 L 400 489 L 440 489" stroke="#ff00cc" stroke-width="2.5" />
+                            <path class="wire wire-l298" data-category="l298" d="M 325 400 L 390 400 L 390 489 L 555 489" stroke="#3399ff" stroke-width="2.5" />
+                            <path class="wire wire-l298" data-category="l298" d="M 180 432 L 370 432 L 370 500 L 670 489" stroke="#3399ff" stroke-width="2.5" />
+
+                            <!-- L298 Driver #2 Wires (Pin 32 ENA, Pin 36 IN1, Pin 38 IN2, Pin 33 ENB, Pin 40 IN3, Pin 37 IN4) -->
+                            <path class="wire wire-l298" data-category="l298" d="M 325 464 L 410 464 L 410 719 L 440 719" stroke="#00f0ff" stroke-width="2.5" />
+                            <path class="wire wire-l298" data-category="l298" d="M 325 528 L 395 528 L 395 719 L 555 719" stroke="#00f0ff" stroke-width="2.5" />
+
+                            <!-- Servo Lines from PCA9685 to Stage Actuators -->
+                            <path class="wire wire-servos" data-category="servos" d="M 800 135 L 830 135 L 830 380 L 860 380" stroke="#ff3344" stroke-width="3" />
+                            <path class="wire wire-servos" data-category="servos" d="M 800 215 L 820 215 L 820 380 L 1090 380" stroke="#00f0ff" stroke-width="3" />
+                            <path class="wire wire-servos" data-category="servos" d="M 800 295 L 835 295 L 835 520 L 860 520" stroke="#00ff88" stroke-width="3" />
+                            <path class="wire wire-servos" data-category="servos" d="M 780 335 L 810 335 L 810 635 L 860 635" stroke="#a855f7" stroke-width="3" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Pinout Lookup Table Card -->
+            <div class="panel-card" style="margin-top: 20px;">
+                <div class="card-header">
+                    <h3>📋 COMPLETE INTERACTIVE GPIO & PCA9685 PINOUT TABLE</h3>
+                    <span class="card-badge" id="tableRowCount">Showing 18 Connected Lines</span>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="pinout-table" id="pinoutTable">
+                        <thead>
+                            <tr>
+                                <th>Header / Module</th>
+                                <th>Pin / Ch #</th>
+                                <th>Signal / GPIO Name</th>
+                                <th>Wire Color</th>
+                                <th>Connected Hardware Module</th>
+                                <th>Terminal / Channel</th>
+                                <th>Function Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pinoutTableBody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Hardware Instructions & Precautions Card -->
+            <div class="panel-card config-card" style="margin-top: 20px;">
+                <div class="card-header">
+                    <h3>⚠️ HARDWARE ASSEMBLY & POWER SAFETY INSTRUCTIONS</h3>
+                    <span class="card-badge">Important Specs</span>
+                </div>
+                <div style="font-size: 0.9rem; line-height: 1.6; color: #d0d7de;">
+                    <p style="margin-bottom: 10px;">
+                        <strong style="color: var(--accent-yellow);">1. Common Ground Connection:</strong> You MUST connect the GND terminal of the Raspberry Pi, PCA9685, both L298N motor drivers, the relay module, and the external power supply together to a shared common ground bus.
+                    </p>
+                    <p style="margin-bottom: 10px;">
+                        <strong style="color: var(--accent-red);">2. High-Current Servo Power (V+):</strong> Do NOT power the servos directly from the Raspberry Pi 5V pins! Use a dedicated 5V or 6V DC power supply capable of supplying 10A - 12A to the PCA9685 screw terminal (V+ and GND).
+                    </p>
+                    <p style="margin-bottom: 10px;">
+                        <strong style="color: var(--accent-cyan);">3. L298N Motor Driver Jumpers:</strong> Ensure the 5V enable jumpers on both L298N boards are kept attached if input voltage is 12V or lower, or power logic via Pi 5V rail.
+                    </p>
+                    <p>
+                        <strong style="color: var(--accent-green);">4. Wire Color Code:</strong> Red = +5V VCC, Black/Grey = Ground (GND), Yellow/Cyan = PWM / Servo Signals, Magenta/Purple = L298 Motor Control, Orange/Gold = Relay Triggers.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="/birdshow3d.js?v=2"></script>
+    <script src="/app.js?v=2"></script>
+</body>
+</html>
