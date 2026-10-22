@@ -1021,6 +1021,57 @@ if __name__ == "__main__":
         ]))
         story.append(t_pinout)
 
+        # --- PAGE 2: COMPLETE BILL OF MATERIALS & PARTS LIST ---
+        from reportlab.platypus import PageBreak
+        story.append(PageBreak())
+        story.append(Paragraph("📦 ANIMATRONIC BIRD SHOW - BILL OF MATERIALS (PARTS LIST)", title_style))
+        story.append(Paragraph("Page 2 of 2: Complete Parts Specification, Quantities, Power Requirements & Subsystem Roles", subtitle_style))
+        story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#0055a5'), spaceBefore=2, spaceAfter=8))
+
+        bom_rows = [[
+            Paragraph("Item #", header_cell_style),
+            Paragraph("Component / Part Name", header_cell_style),
+            Paragraph("Specification / Model", header_cell_style),
+            Paragraph("Qty", header_cell_style),
+            Paragraph("Subsystem Role & Interface", header_cell_style),
+            Paragraph("Power / Voltage", header_cell_style)
+        ]]
+
+        bom_data_items = [
+            ("1", "Raspberry Pi 4 or 5", "4GB / 8GB RAM Model B", "1", "Master Application & Server Controller, I2C Bus, GPIO Triggers", "5V @ 3A DC (Type-C)"),
+            ("2", "Animatronic Parrots", "2 Tall Rear Parrots on 3-DOF Servo Perches", "2", "Parrot 1 & Parrot 2 with Mouth Solenoids, Blinking Eyes, Flapping Wings", "5V - 6V DC High Current"),
+            ("3", "PCA9685 PWM Servo Driver", "16-Channel 12-Bit I2C Board (0x40)", "1", "Drives 16 Servos (Parrot Perches, Spotlights, Small Birds, Base Turntable)", "5V Logic / 5V-6V V+"),
+            ("4", "Dual L298N Motor Drivers", "Dual Channel H-Bridge Drivers", "2", "Driver #1 (P1) & Driver #2 (P2): Solenoids, Eyes, Wings", "5V - 6V DC Motor Power"),
+            ("5", "2-Channel Relay Module", "Optocoupled 5V Relay Board", "1", "Relay #1 (GPIO 17) Left Bird Chirp, Relay #2 (GPIO 27) Right Bird Chirp", "5V DC Logic VCC"),
+            ("6", "Transistor Gearmotor Driver", "NPN / MOSFET Power Transistor", "1", "GPIO 22 Driver for Center Small Bird Gearmotor & Beak", "5V DC"),
+            ("7", "High-Torque Metal Servos", "MG996R / SG90 Digital Servos", "12", "Parrot 3-DOF Perches (Turn, Bow, Shimmy), Spotlights, Stage Base Servo", "5V - 6V DC"),
+            ("8", "Small Stage Birds", "Interactive Perch Birds", "5", "Center Bird (Gearmotor), Front Left/Right (Chirp Relays), Rear Left/Right", "5V DC"),
+            ("9", "2-DOF Spotlight Assemblies", "Pan/Tilt Servo Mounts with LED Spotlights", "2", "Parrot 1 & Parrot 2 Dimmable Stage Spotlights", "5V - 6V DC / PCA9685"),
+            ("10", "Main Stage Turntable Base", "Rotating Disc Assembly with Gear Ring", "1", "Main Stage Rotating Servo Drive (PCA Ch 15)", "5V - 6V DC"),
+            ("11", "Main DC Power Supply", "5V/6V 12A Switching DC Power Supply", "1", "High-Current Power Rail for Servos, Solenoids & Gearmotors", "5V-6V 12A Out"),
+            ("12", "Common Ground Bus & Harness", "20 AWG / 18 AWG Wire Harness & Bus Bar", "1", "Common Reference Ground Rail connecting Pi, L298Ns, PCA9685 & Relays", "Common GND Reference")
+        ]
+
+        for item in bom_data_items:
+            bom_rows.append([
+                Paragraph(f"<b>{item[0]}</b>", cell_style),
+                Paragraph(f"<b>{item[1]}</b>", cell_style),
+                Paragraph(item[2], cell_style),
+                Paragraph(f"<b>{item[3]}</b>", cell_style),
+                Paragraph(item[4], cell_style),
+                Paragraph(item[5], cell_style)
+            ])
+
+        t_bom = Table(bom_rows, colWidths=[40, 130, 130, 35, 255, 130])
+        t_bom.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0055a5')),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#dddddd')),
+            ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor('#ffffff'), colors.HexColor('#f8fafd')])
+        ]))
+        story.append(t_bom)
+
         doc.build(story)
         return buffer.getvalue()
 

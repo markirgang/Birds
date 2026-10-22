@@ -1319,7 +1319,7 @@
             <div class="panel-card" style="margin-top: 20px;">
                 <div class="card-header">
                     <h3>📋 COMPLETE INTERACTIVE GPIO & PCA9685 PINOUT TABLE</h3>
-                    <span class="card-badge" id="tableRowCount">Showing 18 Connected Lines</span>
+                    <span class="card-badge" id="tableRowCount">Showing Connected Lines</span>
                 </div>
 
                 <div style="overflow-x: auto;">
@@ -1337,6 +1337,127 @@
                         </thead>
                         <tbody id="pinoutTableBody">
                             <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DEDICATED PARTS LIST & BILL OF MATERIALS (BOM) CARD -->
+            <div class="panel-card" style="margin-top: 20px; border-color: var(--accent-yellow);">
+                <div class="card-header">
+                    <h3 style="color: var(--accent-yellow);">📦 SYSTEM PARTS LIST & BILL OF MATERIALS (BOM)</h3>
+                    <span class="card-badge" style="background: rgba(255, 215, 0, 0.15); color: var(--accent-yellow);">Hardware Specifications Page</span>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="pinout-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">Item</th>
+                                <th>Component / Part Name</th>
+                                <th>Specification / Model</th>
+                                <th style="width: 50px;">Qty</th>
+                                <th>Subsystem Role & Interface</th>
+                                <th>Power / Voltage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1</strong></td>
+                                <td><strong style="color: var(--accent-cyan);">Raspberry Pi 4 / 5</strong></td>
+                                <td>4GB / 8GB RAM Model B</td>
+                                <td><strong>1</strong></td>
+                                <td>Master Application & Server Controller, I2C Bus, GPIO Triggers</td>
+                                <td>5V @ 3A DC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2</strong></td>
+                                <td><strong style="color: var(--accent-green);">Animatronic Parrots</strong></td>
+                                <td>2 Tall Rear Parrots on 3-DOF Servo Perches</td>
+                                <td><strong>2</strong></td>
+                                <td>Parrot 1 & Parrot 2 with Mouth Solenoids, Blinking Eyes, Flapping Wings</td>
+                                <td>5V - 6V DC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3</strong></td>
+                                <td><strong style="color: var(--accent-purple);">PCA9685 PWM Servo Driver</strong></td>
+                                <td>16-Channel 12-Bit I2C Board (0x40)</td>
+                                <td><strong>1</strong></td>
+                                <td>Drives 16 Servos (Parrot Perches, Spotlights, Small Birds, Base Turntable)</td>
+                                <td>5V Logic / 5V-6V V+</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4</strong></td>
+                                <td><strong style="color: var(--accent-magenta);">Dual L298N Motor Drivers</strong></td>
+                                <td>Dual Channel H-Bridge Motor Drivers</td>
+                                <td><strong>2</strong></td>
+                                <td>Driver #1 (P1) & Driver #2 (P2): Mouth Solenoids, Blinking Eyes, Wings</td>
+                                <td>5V - 6V DC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5</strong></td>
+                                <td><strong style="color: var(--accent-red);">2-Channel Relay Module</strong></td>
+                                <td>Optocoupled 5V Relay Board</td>
+                                <td><strong>1</strong></td>
+                                <td>Relay #1 (GPIO 17) Left Bird Chirp, Relay #2 (GPIO 27) Right Bird Chirp</td>
+                                <td>5V DC Logic VCC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6</strong></td>
+                                <td><strong style="color: var(--accent-cyan);">Transistor Gearmotor Driver</strong></td>
+                                <td>NPN / MOSFET Power Transistor</td>
+                                <td><strong>1</strong></td>
+                                <td>GPIO 22 Driver for Center Small Bird Gearmotor & Beak</td>
+                                <td>5V DC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>7</strong></td>
+                                <td><strong style="color: var(--accent-yellow);">High-Torque Metal Servos</strong></td>
+                                <td>MG996R / SG90 Digital Servos</td>
+                                <td><strong>12</strong></td>
+                                <td>Parrot 3-DOF Perches (Turn, Bow, Shimmy), Spotlights, Stage Base Servo</td>
+                                <td>5V - 6V DC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>8</strong></td>
+                                <td><strong style="color: var(--accent-green);">Small Stage Birds</strong></td>
+                                <td>Interactive Perch Birds</td>
+                                <td><strong>5</strong></td>
+                                <td>Center Bird (Gearmotor), Front Left/Right (Chirp Relays), Rear Left/Right</td>
+                                <td>5V DC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>9</strong></td>
+                                <td><strong style="color: var(--accent-cyan);">2-DOF Spotlight Assemblies</strong></td>
+                                <td>Pan/Tilt Servo Mounts with LED Spotlights</td>
+                                <td><strong>2</strong></td>
+                                <td>Parrot 1 & Parrot 2 Dimmable Stage Spotlights</td>
+                                <td>5V - 6V DC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>10</strong></td>
+                                <td><strong style="color: var(--accent-magenta);">Main Stage Turntable Base</strong></td>
+                                <td>Rotating Disc Assembly with Gear Ring</td>
+                                <td><strong>1</strong></td>
+                                <td>Main Stage Rotating Servo Drive (PCA Ch 15)</td>
+                                <td>5V - 6V DC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>11</strong></td>
+                                <td><strong style="color: var(--accent-yellow);">Main DC Power Supply</strong></td>
+                                <td>5V/6V 12A Switching DC Power Supply</td>
+                                <td><strong>1</strong></td>
+                                <td>High-Current Power Rail for Servos, Solenoids & Gearmotors</td>
+                                <td>5V-6V 12A Out</td>
+                            </tr>
+                            <tr>
+                                <td><strong>12</strong></td>
+                                <td><strong style="color: var(--text-muted);">Common Ground Bus & Harness</strong></td>
+                                <td>20 AWG / 18 AWG Wire Harness & Bus Bar</td>
+                                <td><strong>1</strong></td>
+                                <td>Common Reference Ground Rail connecting Pi, L298Ns, PCA9685 & Relays</td>
+                                <td>Common GND</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
