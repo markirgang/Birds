@@ -1103,15 +1103,14 @@ if __name__ == "__main__":
         ]]
 
         pca_items = [
-            ("I2C Header", "SDA / SCL / VCC / GND", "Raspberry Pi GPIO 2 & 3", "I2C Serial Communication Bus (Addr: 0x40)", "3.3V / 5V Logic"),
+            ("I2C Header", "SDA / SCL / VCC / GND", "Raspberry Pi GPIO 2, 3 & 3.3V Pin 1", "I2C Serial Communication Bus (Addr: 0x40)", "3.3V DC VCC Logic"),
             ("Ext Power V+", "V+ Screw Terminal", "5V / 6V 12A Power Supply", "High-Current Servo Power Rail", "5V - 6V DC @ 12A"),
             ("Channel 0 - 2", "PWM Servo Out", "Parrot 1 (Left) 3-DOF Perch", "Turn Servo (Yaw), Bow Servo (Pitch), Shimmy Servo (Roll)", "5V Servo Power"),
             ("Channel 3 - 4", "PWM Servo Out", "Parrot 1 Spotlight Pan/Tilt", "Horizontal Pan Servo & Vertical Tilt Servo", "5V Servo Power"),
-            ("Channel 5", "PWM Dimmer Out", "Parrot 1 Spotlight MOSFET", "3.3V Gate MOSFET -> 12V Parrot 1 Dimmable LED Spotlight", "3.3V PWM / 12V DC"),
-            ("Channel 6 - 8", "PWM Servo Out", "Parrot 2 (Right) 3-DOF Perch", "Turn Servo (Yaw), Bow Servo (Pitch), Shimmy Servo (Roll)", "5V Servo Power"),
-            ("Channel 9 - 10", "PWM Servo Out", "Parrot 2 Spotlight Pan/Tilt", "Horizontal Pan Servo & Vertical Tilt Servo", "5V Servo Power"),
-            ("Channel 11", "PWM Dimmer Out", "Parrot 2 Spotlight MOSFET", "3.3V Gate MOSFET -> 12V Parrot 2 Dimmable LED Spotlight", "3.3V PWM / 12V DC"),
-            ("Channel 12 - 14", "PWM Servo Out", "Center Small Bird 3-DOF", "Turn Servo (Yaw), Bow Servo (Pitch), Shimmy Servo (Roll)", "5V Servo Power"),
+            ("Channel 5 - 7", "PWM Servo Out", "Parrot 2 (Right) 3-DOF Perch", "Turn Servo (Yaw), Bow Servo (Pitch), Shimmy Servo (Roll)", "5V Servo Power"),
+            ("Channel 8 - 9", "PWM Servo Out", "Parrot 2 Spotlight Pan/Tilt", "Horizontal Pan Servo & Vertical Tilt Servo", "5V Servo Power"),
+            ("Channel 10 - 12", "PWM Servo Out", "Center Small Bird 3-DOF", "Turn Servo (Yaw), Bow Servo (Pitch), Shimmy Servo (Roll)", "5V Servo Power"),
+            ("Channel 13 - 14", "PWM Servo Out", "Front Left/Right Birds", "Movement Servos for Small Perch Birds", "5V Servo Power"),
             ("Channel 15", "PWM Servo Out", "Main Stage Turntable Base", "Main Stage 360°/180° Base Rotating Servo Drive", "5V Servo Power")
         ]
 
@@ -1161,7 +1160,8 @@ if __name__ == "__main__":
             ("9", "2-DOF Spotlight Assemblies", "Pan/Tilt Servo Mounts with LED Spotlights", "2", "Parrot 1 & Parrot 2 Dimmable Stage Spotlights", "5V - 6V DC / PCA9685"),
             ("10", "Main Stage Turntable Base", "Rotating Disc Assembly with Gear Ring", "1", "Main Stage Rotating Servo Drive (PCA Ch 15)", "5V - 6V DC"),
             ("11", "Main DC Power Supply", "5V/6V 12A Switching DC Power Supply", "1", "High-Current Power Rail for Servos, Solenoids & Gearmotors", "5V-6V 12A Out"),
-            ("12", "Common Ground Bus & Harness", "20 AWG / 18 AWG Wire Harness & Bus Bar", "1", "Common Reference Ground Rail connecting Pi, L298Ns, PCA9685 & Relays", "Common GND Reference")
+            ("12", "Common Ground Bus & Harness", "20 AWG / 18 AWG Wire Harness & Bus Bar", "1", "Common Reference Ground Rail connecting Pi, L298Ns, PCA9685 & Relays", "Common GND Reference"),
+            ("13", "IRLZ44N Logic-Level MOSFETs", "Discrete TO-220 N-Ch MOSFETs with 220Ω Gate Resistor & 22kΩ GND Pull-Down", "7", "Individual Direct Pi GPIO PWM Dimmers for 7 12V DC Stage Spotlights", "3.3V DC PWM Gate / 12V DC Load")
         ]
 
         for item in bom_data_items:
@@ -1183,6 +1183,23 @@ if __name__ == "__main__":
             ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor('#ffffff'), colors.HexColor('#f8fafd')])
         ]))
         story.append(t_bom)
+
+        # --- PAGE 4: OPERATING INSTRUCTIONS & SAFETY MANUAL ---
+        story.append(PageBreak())
+        story.append(Paragraph("📖 ANIMATRONIC BIRD SHOW - OPERATING MANUAL & SAFETY GUIDE", title_style))
+        story.append(Paragraph("Page 4 of 4: Comprehensive Operating Instructions, Mechanical Chirp Relay Rules & Safety Specifications", subtitle_style))
+        story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#0055a5'), spaceBefore=2, spaceAfter=8))
+
+        guide_style = ParagraphStyle('GuideText', parent=styles['Normal'], fontName='Helvetica', fontSize=8, leading=11, textColor=colors.HexColor('#111111'), spaceAfter=6)
+
+        story.append(Paragraph("⚡ 1. Power Supply & Electrical Safety Rules", heading_style))
+        story.append(Paragraph("<b>• Common Reference Ground Bus:</b> Connect Raspberry Pi GND, PCA9685 GND, L298N GND, MOSFET source GND, Relay GND, and Power Supply GND together to a shared common ground bus.", guide_style))
+        story.append(Paragraph("<b>• Discrete IRLZ44N MOSFET Wiring:</b> Connect each Pi GPIO PWM pin through a <b>220Ω series resistor</b> to the MOSFET Gate (Pin 1) to protect the Pi pin. Connect a <b>22kΩ pull-down resistor</b> from Gate to GND to prevent flickering during bootup. Connect 12V DC Light (-) to Drain (Pin 2) and Source (Pin 3) to Common GND.", guide_style))
+        story.append(Paragraph("<b>• Mechanical Chirp Relays:</b> Relays #1 (GPIO 17) and #2 (GPIO 27) are mechanical relays used specifically to switch the physical audio chirp circuits for the Front Left and Front Right Small Birds.", guide_style))
+
+        story.append(Paragraph("🦜 2. Animatronic Parrots & Small Birds Mechanics", heading_style))
+        story.append(Paragraph("<b>• Parrot 1 & Parrot 2 Perch Servos:</b> PCA Channels 0-2 (Parrot 1) and 5-7 (Parrot 2) drive 3-DOF perches (Turn, Bow, Shimmy). L298 Driver #1 drives Parrot 1 mouth solenoids, blinking eyes, and wing motors. L298 Driver #2 drives Parrot 2.", guide_style))
+        story.append(Paragraph("<b>• Gemini Multimodal AI Voice & Song Sync:</b> Provide a valid Gemini API Key in the System Configuration tab to enable live speech processing, camera vision, and automated parrot show performances.", guide_style))
 
         doc.build(story)
         return buffer.getvalue()
