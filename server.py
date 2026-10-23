@@ -503,32 +503,40 @@ class BirdShowRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json({
                 "device": "Animatronic Bird Show Master",
                 "i2c_bus": {"sda": "GPIO 2 (Pin 3)", "scl": "GPIO 3 (Pin 5)", "pca9685_address": "0x40"},
-                "pca9685_channels": {
+                "pca9685_channels_servos_only": {
                     "0": "Parrot 1 Turn Servo (Yaw)",
                     "1": "Parrot 1 Bow Servo (Pitch)",
                     "2": "Parrot 1 Shimmy Servo (Roll)",
                     "3": "Parrot 1 Spotlight Pan Servo",
                     "4": "Parrot 1 Spotlight Tilt Servo",
-                    "5": "Parrot 1 Spotlight PWM Dimmer",
-                    "6": "Parrot 2 Turn Servo (Yaw)",
-                    "7": "Parrot 2 Bow Servo (Pitch)",
-                    "8": "Parrot 2 Shimmy Servo (Roll)",
-                    "9": "Parrot 2 Spotlight Pan Servo",
-                    "10": "Parrot 2 Spotlight Tilt Servo",
-                    "11": "Parrot 2 Spotlight PWM Dimmer",
-                    "12": "Center Small Bird Turn Servo (Yaw)",
-                    "13": "Center Small Bird Bow Servo (Pitch)",
-                    "14": "Center Small Bird Shimmy Servo (Roll)",
+                    "5": "Parrot 2 Turn Servo (Yaw)",
+                    "6": "Parrot 2 Bow Servo (Pitch)",
+                    "7": "Parrot 2 Shimmy Servo (Roll)",
+                    "8": "Parrot 2 Spotlight Pan Servo",
+                    "9": "Parrot 2 Spotlight Tilt Servo",
+                    "10": "Center Small Bird Turn Servo (Yaw)",
+                    "11": "Center Small Bird Bow Servo (Pitch)",
+                    "12": "Center Small Bird Shimmy Servo (Roll)",
+                    "13": "Front Left Small Bird Movement Servo",
+                    "14": "Front Right Small Bird Movement Servo",
                     "15": "Main Stage Turntable Base Servo"
+                },
+                "mosfet_12v_spotlights": {
+                    "parrot1_spotlight": "GPIO 4 (Pin 7) -> IRLZ44N MOSFET Gate (220Ω / 10kΩ GND) -> 12V DC Parrot 1 Spotlight (-)",
+                    "parrot2_spotlight": "GPIO 12 (Pin 32) -> IRLZ44N MOSFET Gate (220Ω / 10kΩ GND) -> 12V DC Parrot 2 Spotlight (-)",
+                    "center_bird_spotlight": "GPIO 16 (Pin 36) -> IRLZ44N MOSFET Gate (220Ω / 10kΩ GND) -> 12V DC Center Small Bird Spotlight (-)",
+                    "front_left_spotlight": "GPIO 20 (Pin 38) -> IRLZ44N MOSFET Gate (220Ω / 10kΩ GND) -> 12V DC Front Left Small Bird Spotlight (-)",
+                    "front_right_spotlight": "GPIO 21 (Pin 40) -> IRLZ44N MOSFET Gate (220Ω / 10kΩ GND) -> 12V DC Front Right Small Bird Spotlight (-)",
+                    "rear_left_spotlight": "GPIO 5 (Pin 29) -> IRLZ44N MOSFET Gate (220Ω / 10kΩ GND) -> 12V DC Rear Left Small Bird Spotlight (-)",
+                    "rear_right_spotlight": "GPIO 6 (Pin 31) -> IRLZ44N MOSFET Gate (220Ω / 10kΩ GND) -> 12V DC Rear Right Small Bird Spotlight (-)"
+                },
+                "mechanical_relays": {
+                    "left_bird_chirp": "GPIO 17 (Pin 11) -> Mechanical Relay #1 IN (Left Small Bird Audio Chirp Circuit)",
+                    "right_bird_chirp": "GPIO 27 (Pin 13) -> Mechanical Relay #2 IN (Right Small Bird Audio Chirp Circuit)"
                 },
                 "l298_drivers": {
                     "parrot1": {"ena": 18, "in1": 23, "in2": 24, "enb": 19, "in3": 25, "in4": 8},
                     "parrot2": {"ena": 12, "in1": 16, "in2": 20, "enb": 13, "in3": 21, "in4": 26}
-                },
-                "relays": {
-                    "left_bird_chirp": 17,
-                    "right_bird_chirp": 27,
-                    "center_bird_motor": 22
                 }
             })
 
@@ -1040,26 +1048,26 @@ if __name__ == "__main__":
         ]]
 
         rpi_pin_pairs = [
-            ("3.3V Power", "Pin 1", "Pin 2", "5.0V Power"),
-            ("GPIO 2 (SDA1) - I2C Data", "Pin 3", "Pin 4", "5.0V Power"),
-            ("GPIO 3 (SCL1) - I2C Clock", "Pin 5", "Pin 6", "Ground (GND)"),
-            ("GPIO 4", "Pin 7", "Pin 8", "GPIO 14 (TX)"),
-            ("Ground (GND)", "Pin 9", "Pin 10", "GPIO 15 (RX)"),
-            ("GPIO 17 - Mechanical Relay #1 (Left Bird Chirp)", "Pin 11", "Pin 12", "GPIO 18 (PWM) - L298 #1 ENA (P1 Mouth/Eyes)"),
-            ("GPIO 27 - Mechanical Relay #2 (Right Bird Chirp)", "Pin 13", "Pin 14", "Ground (GND)"),
+            ("3.3V Power - Logic Ref", "Pin 1", "Pin 2", "5.0V Power - Logic VCC"),
+            ("GPIO 2 (SDA1) - I2C Data", "Pin 3", "Pin 4", "5.0V Power - Logic VCC"),
+            ("GPIO 3 (SCL1) - I2C Clock", "Pin 5", "Pin 6", "Ground (GND) - Common GND"),
+            ("GPIO 4 - Parrot 1 Spot MOSFET", "Pin 7", "Pin 8", "GPIO 14 (TX)"),
+            ("Ground (GND) - Common GND", "Pin 9", "Pin 10", "GPIO 15 (RX)"),
+            ("GPIO 17 - Mechanical Relay #1 (Left Chirp)", "Pin 11", "Pin 12", "GPIO 18 (PWM) - L298 #1 ENA (P1 Mouth/Eyes)"),
+            ("GPIO 27 - Mechanical Relay #2 (Right Chirp)", "Pin 13", "Pin 14", "Ground (GND) - Common GND"),
             ("GPIO 22 - Center Bird Gearmotor Transistor", "Pin 15", "Pin 16", "GPIO 23 - L298 #1 IN1 (P1 Mouth)"),
             ("3.3V Power", "Pin 17", "Pin 18", "GPIO 24 - L298 #1 IN2 (P1 Eyes)"),
-            ("GPIO 10", "Pin 19", "Pin 20", "Ground (GND)"),
+            ("GPIO 10", "Pin 19", "Pin 20", "Ground (GND) - Common GND"),
             ("GPIO 9", "Pin 21", "Pin 22", "GPIO 25 - L298 #1 IN3 (P1 Wings)"),
             ("GPIO 11", "Pin 23", "Pin 24", "GPIO 8 - L298 #1 IN4 (P1 Wings)"),
             ("Ground (GND)", "Pin 25", "Pin 26", "GPIO 7"),
             ("GPIO 0 (ID_SD)", "Pin 27", "Pin 28", "GPIO 1 (ID_SC)"),
-            ("GPIO 5", "Pin 29", "Pin 30", "Ground (GND)"),
-            ("GPIO 6", "Pin 31", "Pin 32", "GPIO 12 (PWM) - L298 #2 ENA (P2 Mouth/Eyes)"),
-            ("GPIO 13 (PWM) - L298 #2 ENB (P2 Wings)", "Pin 33", "Pin 34", "Ground (GND)"),
-            ("GPIO 19 (PWM) - L298 #1 ENB (P1 Wings)", "Pin 35", "Pin 36", "GPIO 16 - L298 #2 IN1 (P2 Mouth)"),
-            ("GPIO 26 - L298 #2 IN4 (P2 Wings)", "Pin 37", "Pin 38", "GPIO 20 - L298 #2 IN2 (P2 Eyes)"),
-            ("Ground (GND)", "Pin 39", "Pin 40", "GPIO 21 - L298 #2 IN3 (P2 Wings)")
+            ("GPIO 5 - Rear Left Bird Spot MOSFET", "Pin 29", "Pin 30", "Ground (GND) - Common GND"),
+            ("GPIO 6 - Rear Right Bird Spot MOSFET", "Pin 31", "Pin 32", "GPIO 12 (PWM) - Parrot 2 Spot MOSFET"),
+            ("GPIO 13 (PWM) - L298 #2 ENB (P2 Wings)", "Pin 33", "Pin 34", "Ground (GND) - Common GND"),
+            ("GPIO 19 (PWM) - L298 #1 ENB (P1 Wings)", "Pin 35", "Pin 36", "GPIO 16 (PWM) - Center Bird Spot MOSFET"),
+            ("GPIO 26 - L298 #2 IN4 (P2 Wings)", "Pin 37", "Pin 38", "GPIO 20 (PWM) - Front Left Spot MOSFET"),
+            ("Ground (GND)", "Pin 39", "Pin 40", "GPIO 21 (PWM) - Front Right Spot MOSFET")
         ]
 
         for left_sig, left_p, right_p, right_sig in rpi_pin_pairs:
