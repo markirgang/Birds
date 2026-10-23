@@ -947,7 +947,7 @@ if __name__ == "__main__":
         overview_data = [
             [Paragraph("Module / Component", header_cell_style), Paragraph("Hardware Role & Signals", header_cell_style), Paragraph("Power Requirements", header_cell_style)],
             [Paragraph("<b>Raspberry Pi 4 / 5</b>", cell_style), Paragraph("Executes master server, Gemini AI, I2C bus (Pin 3 SDA, Pin 5 SCL), L298N triggers & Relays", cell_style), Paragraph("+5V @ 3A DC", cell_style)],
-            [Paragraph("<b>PCA9685 16-Ch PWM Driver</b>", cell_style), Paragraph("I2C Address 0x40. Drives 16 PWM channels (3-DOF perches, 2-DOF spotlights, base turntable)", cell_style), Paragraph("+5V Logic / +5V-+6V 12A V+", cell_style)],
+            [Paragraph("<b>PCA9685 16-Ch PWM Driver</b>", cell_style), Paragraph("I2C Address 0x40. Drives 16 PWM channels (3-DOF perches, 2-DOF spotlights, base turntable)", cell_style), Paragraph("3.3V DC Logic VCC / +5V-+6V 12A V+", cell_style)],
             [Paragraph("<b>Dual L298N Motor Drivers</b>", cell_style), Paragraph("Driver #1 (Parrot 1) & Driver #2 (Parrot 2) Mouth Solenoids, Blinking Eyes & Flapping Wings", cell_style), Paragraph("+5V/+6V High-Current Rail", cell_style)],
             [Paragraph("<b>2-Ch Relays & Transistor Driver</b>", cell_style), Paragraph("Relay #1 (GPIO 17) Left Bird Chirp, Relay #2 (GPIO 27) Right Bird Chirp, Center Bird Gearmotor (GPIO 22)", cell_style), Paragraph("+5V Logic VCC", cell_style)]
         ]
