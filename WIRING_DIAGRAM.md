@@ -1,6 +1,6 @@
 # 🦜 ANIMATRONIC BIRD SHOW - HARDWARE WIRING DIAGRAM & SCHEMATIC GUIDE
 
-This document details all physical hardware connections, Raspberry Pi GPIO pin mappings, PCA9685 12-bit PWM channel assignments driving 3.3V gate / 12V power supply MOSFET power transistors for DC stage spotlights, mechanical chirp relays, L298N motor driver connections, and power distribution rails for the Animatronic Bird Show Master Controller.
+This document details all physical hardware connections, Raspberry Pi GPIO pin mappings, IRLZ44N N-Channel Logic-Level MOSFET spotlight circuits (with 220Ω series gate resistors and 10kΩ pull-down resistors), mechanical chirp relays, PCA9685 12-bit PWM channel assignments, L298N motor driver connections, and power distribution rails for the Animatronic Bird Show Master Controller.
 
 ---
 
@@ -9,8 +9,8 @@ This document details all physical hardware connections, Raspberry Pi GPIO pin m
 ```
 +-----------------------------------------------------------------------------------+
 |                                  MAIN POWER SUPPLY                                |
-|  +12V DC @ 10A (MOSFET Stage Spotlights)    +5V / +6V @ 12A DC (Servos & Motors) |
-|  +5V @ 3A DC (Raspberry Pi Logic)                                                 |
+|  +12V DC @ 10A (IRLZ44N MOSFET Dimmable Stage Spotlights)                         |
+|  +5V / +6V @ 12A DC (PCA9685 Servos & Gearmotors) +5V @ 3A DC (Raspberry Pi)      |
 +------------------------------------------+----------------------------------------+
                                            |
                                            v
@@ -18,7 +18,7 @@ This document details all physical hardware connections, Raspberry Pi GPIO pin m
 |                              RASPBERRY PI 4 / 5 MCU                               |
 | - 40-Pin GPIO Header                                                              |
 | - I2C Bus (SDA: GPIO 2, SCL: GPIO 3) -> PCA9685 PWM Servo & MOSFET Controller    |
-| - Mechanical Relays: GPIO 17 (Relay #1 Chirp), GPIO 27 (Relay #2 Chirp)          |
+| - Mechanical Chirp Relays: GPIO 17 (Relay #1 Chirp), GPIO 27 (Relay #2 Chirp)     |
 | - 2x L298N Motor Drivers: GPIO 18 ENA, 23 IN1, 24 IN2, 19 ENB, 25 IN3, 8 IN4      |
 |   and GPIO 12 ENA, 16 IN1, 20 IN2, 13 ENB, 21 IN3, 26 IN4                         |
 +-----+----------------------+---------------------+--------------------------------+
@@ -30,15 +30,14 @@ This document details all physical hardware connections, Raspberry Pi GPIO pin m
 | (I2C Addr: 0x40)   |  | (#1 & #2)          |  | (Chirp Circuits & Beak Motors)    |
 +-----+--------------+  +----+---------------+  +-----------------------------------+
       |                      |
-      | (PCA9685 PWM to MOSFETs: 3.3V Gate / 12V Power)
-      v                      v
+      v (PCA9685 PWM to IRLZ44N MOSFETs: 3.3V Gate / 12V Power)
 +-----+----------------------+------------------------------------------------------+
-|                       ANIMATRONIC STAGE ACTUATORS & DC LIGHTS                     |
+|                       ANIMATRONIC STAGE ACTUATORS & LIGHTS                        |
 | - Parrot 1 (Left Tall): 3-DOF Perch + 2-DOF Spotlight + Mouth/Eyes & Wing Motors  |
 | - Parrot 2 (Right Tall): 3-DOF Perch + 2-DOF Spotlight + Mouth/Eyes & Wing Motors |
-| - PCA9685 -> 3.3V Gate / 12V Power MOSFET DC Stage Spotlights:                    |
-|   * PCA Ch 5: Parrot 1 Dimmable LED Spotlight MOSFET PWM Dimmer (12V DC)         |
-|   * PCA Ch 11: Parrot 2 Dimmable LED Spotlight MOSFET PWM Dimmer (12V DC)        |
+| - IRLZ44N Logic-Level MOSFET 12V DC Spotlights (220Ω Gate Resistor / 10kΩ GND):  |
+|   * PCA Ch 5 -> 220Ω -> Gate IRLZ44N #1 -> 12V Parrot 1 LED Spotlight (-)         |
+|   * PCA Ch 11 -> 220Ω -> Gate IRLZ44N #2 -> 12V Parrot 2 LED Spotlight (-)        |
 | - Mechanical Chirp Relays:                                                        |
 |   * Relay #1 (GPIO 17 Mechanical): Front Left Small Bird Mechanical Chirp Relay   |
 |   * Relay #2 (GPIO 27 Mechanical): Front Right Small Bird Mechanical Chirp Relay  |
@@ -78,7 +77,7 @@ This document details all physical hardware connections, Raspberry Pi GPIO pin m
 
 ---
 
-## 🎛️ 2. PCA9685 16-CHANNEL PWM SERVO & MOSFET LIGHTING DRIVER (I2C Addr: 0x40)
+## 🎛️ 2. PCA9685 16-CHANNEL PWM SERVO & MOSFET DRIVER (I2C Addr: 0x40)
 
 | Channel # | Connected Servo / Hardware Output | Function Description | Signal Range & Voltage |
 | :---: | :--- | :--- | :---: |
@@ -87,21 +86,46 @@ This document details all physical hardware connections, Raspberry Pi GPIO pin m
 | **Ch 2** | Parrot 1 (Left) 3-DOF Perch | Shimmy Servo Motor (Roll Angle) | 500μs - 2500μs (5V) |
 | **Ch 3** | Parrot 1 Spotlight | Horizontal Pan Servo Motor | 500μs - 2500μs (5V) |
 | **Ch 4** | Parrot 1 Spotlight | Vertical Tilt Servo Motor | 500μs - 2500μs (5V) |
-| **Ch 5** | Parrot 1 Spotlight LED MOSFET | 3.3V Gate MOSFET -> 12V LED Spotlight PWM Dimmer | 0% - 100% PWM (12V) |
+| **Ch 5** | Parrot 1 Spotlight LED MOSFET | **220Ω Gate Resistor (10kΩ GND) -> IRLZ44N -> 12V LED Spotlight (-)** | 0% - 100% PWM (12V) |
 | **Ch 6** | Parrot 2 (Right) 3-DOF Perch | Turn Servo Motor (Yaw Angle) | 500μs - 2500μs (5V) |
-| **Ch 7** | Parrot 2 (Right) 3-DOF Perch | Bow Servo Motor (Pitch Angle) | 500μs - 2500μs (0° - 180°) |
-| **Ch 8** | Parrot 2 (Right) 3-DOF Perch | Shimmy Servo Motor (Roll Angle) | 500μs - 2500μs (0° - 180°) |
-| **Ch 9** | Parrot 2 Spotlight | Horizontal Pan Servo Motor | 500μs - 2500μs (0° - 180°) |
-| **Ch 10** | Parrot 2 Spotlight | Vertical Tilt Servo Motor | 500μs - 2500μs (0° - 180°) |
-| **Ch 11** | Parrot 2 Spotlight LED MOSFET | 3.3V Gate MOSFET -> 12V LED Spotlight PWM Dimmer | 0% - 100% PWM (12V) |
-| **Ch 12** | Center Small Bird 3-DOF Perch | Turn Servo Motor (Yaw Angle) | 500μs - 2500μs (0° - 180°) |
-| **Ch 13** | Center Small Bird 3-DOF Perch | Bow Servo Motor (Pitch Angle) | 500μs - 2500μs (0° - 180°) |
-| **Ch 14** | Center Small Bird 3-DOF Perch | Shimmy Servo Motor (Roll Angle) | 500μs - 2500μs (0° - 180°) |
+| **Ch 7** | Parrot 2 (Right) 3-DOF Perch | Bow Servo Motor (Pitch Angle) | 500μs - 2500μs (5V) |
+| **Ch 8** | Parrot 2 (Right) 3-DOF Perch | Shimmy Servo Motor (Roll Angle) | 500μs - 2500μs (5V) |
+| **Ch 9** | Parrot 2 Spotlight | Horizontal Pan Servo Motor | 500μs - 2500μs (5V) |
+| **Ch 10** | Parrot 2 Spotlight | Vertical Tilt Servo Motor | 500μs - 2500μs (5V) |
+| **Ch 11** | Parrot 2 Spotlight LED MOSFET | **220Ω Gate Resistor (10kΩ GND) -> IRLZ44N -> 12V LED Spotlight (-)** | 0% - 100% PWM (12V) |
+| **Ch 12** | Center Small Bird 3-DOF Perch | Turn Servo Motor (Yaw Angle) | 500μs - 2500μs (5V) |
+| **Ch 13** | Center Small Bird 3-DOF Perch | Bow Servo Motor (Pitch Angle) | 500μs - 2500μs (5V) |
+| **Ch 14** | Center Small Bird 3-DOF Perch | Shimmy Servo Motor (Roll Angle) | 500μs - 2500μs (5V) |
 | **Ch 15** | Main Stage Turntable Base | Turntable Rotating Servo Motor | 500μs - 2500μs (Continuous) |
 
 ---
 
-## ⚙️ 3. L298N DUAL H-BRIDGE MOTOR CONTROLLERS & MECHANICAL CHIRP RELAYS
+## ⚡ 3. IRLZ44N MOSFET LIGHTING CIRCUIT SCHEMATIC (GEMINI AI SPECIFICATION)
+
+```
+             PCA9685 PWM Output Channel Pin (PCA Ch 5 / Ch 11)
+                                |
+                                |
+                             [220Ω Series Gate Resistor]
+                                |
+                                +-------------------+
+                                |                   |
+                          (Gate - Pin 1)     [10kΩ Pull-Down]
+                          IRLZ44N MOSFET           |
+                         +--------------+           |
+                         |  G    D    S |           |
+                         +--|----|----|-+           |
+                            |    |    +-------------+----> Raspberry Pi GND &
+                            |    |                         12V Power Supply (-) GND
+                            |    |
+                            |    +-----------------------> 12V DC Spotlight (-) Negative Wire
+                            |
+                   12V Spotlight (+) Positive Wire -----> +12V DC Power Supply (+) Rail
+```
+
+---
+
+## ⚙️ 4. MECHANICAL CHIRP RELAYS & L298N MOTOR DRIVERS
 
 ### Mechanical Chirp Relays
 - **Relay #1 (GPIO 17 Mechanical Relay):** Mechanical relay switching physical audio circuit for Front Left Small Bird chirp sound.
@@ -113,14 +137,3 @@ This document details all physical hardware connections, Raspberry Pi GPIO pin m
   - `ENA` (PWM) -> GPIO 18 (Pin 12) | `IN1` -> GPIO 23 (Pin 16) | `IN2` -> GPIO 24 (Pin 18)
   - Forward Polarity (`IN1=HIGH, IN2=LOW`): Mouth Open
   - Reverse Polarity (`IN1=LOW, IN2=HIGH`): Eyes Blink
-
----
-
-## 💡 4. PCA9685-DRIVEN MOSFET DC LIGHTING & POWER DISTRIBUTION
-
-1. **Dimmable Stage Spotlights (PCA9685 -> 3.3V Gate / 12V Power MOSFETs):**
-   - All DC spotlights (Parrot 1 Spotlight on `PCA Ch 5`, Parrot 2 Spotlight on `PCA Ch 11`) are driven by **PCA9685 12-bit PWM channels** controlling **3.3V gate / 12V power supply MOSFET power transistors**.
-   - Enables full 12-bit PWM brightness dimming, spotlight sweeps, and spotlight intensity fades.
-
-2. **Common Ground:**
-   - Connect Raspberry Pi GND, PCA9685 GND, L298N GND, MOSFET source GND, Relay GND, and Power Supply GND together to a shared common ground bus.
