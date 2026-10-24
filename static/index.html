@@ -59,6 +59,7 @@
             <button class="nav-tab-btn" id="tabBtnWiring" data-tab="tabWiring" onclick="switchTab('tabWiring')">🛠️ Hardware & Wiring Diagrams</button>
             <button class="nav-tab-btn" id="tabBtnCalib" data-tab="tabCalib" onclick="switchTab('tabCalib')">🔧 Servo Calibration & Hardware Output Tests</button>
             <button class="nav-tab-btn" id="tabBtnConfig" data-tab="tabConfig" onclick="switchTab('tabConfig')">⚙️ System Configuration (Camera, Mic, Audio & Voice)</button>
+            <button class="nav-tab-btn" id="tabBtnInstructions" data-tab="tabInstructions" onclick="switchTab('tabInstructions')">📖 Guide & Instructions</button>
         </nav>
 
         <!-- Tab 1: Main Stage & Animatronics Pane -->
@@ -1482,6 +1483,98 @@
                     <p>
                         <strong style="color: var(--accent-green);">4. Wire Color Code:</strong> Red = +5V VCC, Black/Grey = Ground (GND), Yellow/Cyan = PWM / Servo Signals, Magenta/Purple = L298 Motor Control, Orange/Gold = Relay Triggers.
                     </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Guide & Operating Manual Pane -->
+        <div id="tabInstructions" class="tab-pane" style="display: none;">
+            <div class="sync-switch-card" style="border-color: var(--accent-cyan); background: linear-gradient(135deg, #101a33, #080f22); margin-bottom: 20px;">
+                <div class="card-header" style="border:none;">
+                    <div>
+                        <h3 style="color: var(--accent-cyan); font-size: 1.3rem;">📖 ANIMATRONIC TROPICAL BIRD SHOW OPERATING MANUAL</h3>
+                        <span class="sync-switch-info">Complete guide for show stage performance, parrot 3-DOF perches, chirp relays, spotlights, and Gemini AI speech synchronization.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:20px;">
+                <!-- Step 1 -->
+                <div class="panel-card">
+                    <div class="card-header">
+                        <span class="card-badge" style="background:var(--accent-cyan); color:#000; font-weight:bold;">Step 1</span>
+                        <h3 style="color:var(--accent-yellow);">🎙️ AI Speech Synchronization Selector</h3>
+                    </div>
+                    <ul style="color:var(--text-muted); font-size:0.88rem; line-height:1.7; padding-left:18px;">
+                        <li><strong>Parrot 1 (Left):</strong> Select to lock AI vocal mouth movement exclusively to the left tall parrot.</li>
+                        <li><strong>Take Turns (Alternating):</strong> Select for dynamic dual-parrot dialogue where parrots automatically alternate speaking turns!</li>
+                        <li><strong>Parrot 2 (Right):</strong> Select to lock AI vocal mouth movement exclusively to the right tall parrot.</li>
+                    </ul>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="panel-card">
+                    <div class="card-header">
+                        <span class="card-badge" style="background:var(--accent-cyan); color:#000; font-weight:bold;">Step 2</span>
+                        <h3 style="color:var(--accent-cyan);">🦜 Tall Parrots & 3-DOF Perch Controls</h3>
+                    </div>
+                    <ul style="color:var(--text-muted); font-size:0.88rem; line-height:1.7; padding-left:18px;">
+                        <li><strong>3-DOF Perch Servos:</strong> Control Turn (Yaw), Bow (Pitch), and Shimmy (Roll) for both Parrot 1 and Parrot 2.</li>
+                        <li><strong>Mouth & Eyes:</strong> L298 Driver Ch A drives realistic opening beak actuation and eye blink mechanisms.</li>
+                        <li><strong>Wing Flapping:</strong> L298 Driver Ch B provides PWM wing flapping motion.</li>
+                    </ul>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="panel-card">
+                    <div class="card-header">
+                        <span class="card-badge" style="background:var(--accent-cyan); color:#000; font-weight:bold;">Step 3</span>
+                        <h3 style="color:var(--accent-magenta);">🐤 Small Birds, Chirp Relays & Base Turntable</h3>
+                    </div>
+                    <ul style="color:var(--text-muted); font-size:0.88rem; line-height:1.7; padding-left:18px;">
+                        <li><strong>Center Small Bird:</strong> Features full 3-DOF perch motion (Yaw, Pitch, Roll) and gearmotor beak chirping.</li>
+                        <li><strong>4 Corner Small Birds:</strong> Activate individual chirping relays and movement gearmotors.</li>
+                        <li><strong>Turntable Stage Base:</strong> Controls main stage base rotation (0° to 180° or slow random rotation mode).</li>
+                    </ul>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="panel-card">
+                    <div class="card-header">
+                        <span class="card-badge" style="background:var(--accent-cyan); color:#000; font-weight:bold;">Step 4</span>
+                        <h3 style="color:var(--accent-green);">💡 2-DOF Spotlights & Stage Light Show</h3>
+                    </div>
+                    <ul style="color:var(--text-muted); font-size:0.88rem; line-height:1.7; padding-left:18px;">
+                        <li><strong>2-DOF Pan & Tilt:</strong> Adjust Shimmy L/R (Pan) and Tilt Up/Down for dual stage spotlights.</li>
+                        <li><strong>PWM Brightness Dimmer:</strong> Smoothly adjust LED spotlight intensity from 0% to 100%.</li>
+                        <li><strong>Automated Lighting Sequences:</strong> Run 3D circular sweeps, pan/tilt sweeps, and strobe pulses.</li>
+                    </ul>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="panel-card">
+                    <div class="card-header">
+                        <span class="card-badge" style="background:var(--accent-cyan); color:#000; font-weight:bold;">Step 5</span>
+                        <h3 style="color:var(--accent-yellow);">🎵 MP3 Playlist & Realtime Parrot Lipsync</h3>
+                    </div>
+                    <ul style="color:var(--text-muted); font-size:0.88rem; line-height:1.7; padding-left:18px;">
+                        <li><strong>MP3 Playlist:</strong> Upload custom show tracks or select songs from the dropdown menu.</li>
+                        <li><strong>Web Audio Engine:</strong> Click <strong style="color:var(--accent-green);">▶️ Play & Sync</strong> to perform realtime Web Audio FFT frequency analysis that actuates parrot beaks in sync with music!</li>
+                        <li><strong>Sensitivity:</strong> Fine-tune Lipsync Sensitivity and Music Volume controls.</li>
+                    </ul>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="panel-card">
+                    <div class="card-header">
+                        <span class="card-badge" style="background:var(--accent-cyan); color:#000; font-weight:bold;">Step 6</span>
+                        <h3 style="color:var(--accent-purple);">🔧 Servo Calibration & Full Hardware Self-Test</h3>
+                    </div>
+                    <ul style="color:var(--text-muted); font-size:0.88rem; line-height:1.7; padding-left:18px;">
+                        <li><strong>Full Hardware Self-Test:</strong> Switch to <strong style="color:var(--accent-cyan);">🔧 Servo Calibration</strong> view and click <strong style="color:var(--accent-yellow);">⚡ RUN FULL HARDWARE SELF-TEST SEQUENCER</strong>.</li>
+                        <li><strong>14-Servo Zero Trims:</strong> Adjust individual servo zero offset trim sliders (-30° to +30°) and save.</li>
+                        <li><strong>Wiring Schematics:</strong> Inspect <strong style="color:var(--accent-cyan);">🛠️ Hardware & Wiring Diagrams</strong> for PCA9685 PWM (0x40), dual L298N drivers, and relay wiring pinouts.</li>
+                    </ul>
                 </div>
             </div>
         </div>
