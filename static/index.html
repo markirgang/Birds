@@ -776,7 +776,8 @@
                     <div class="control-group">
                         <label for="configMicSelect">Select Microphone Input Device:</label>
                         <select id="configMicSelect" class="config-select">
-                            <option value="default">Default System Microphone</option>
+                            <option value="browser" selected>🌐 Remote Computer / Browser Microphone (Client Web Mic)</option>
+                            <option value="default">🎙️ Raspberry Pi Local Server Microphone (Default Mic)</option>
                         </select>
                     </div>
                     <div class="control-group">
@@ -802,7 +803,8 @@
                     <div class="control-group">
                         <label for="configAudioOutputSelect">Select Speaker / Audio Output Device:</label>
                         <select id="configAudioOutputSelect" class="config-select">
-                            <option value="default">Default System Speaker Output</option>
+                            <option value="browser" selected>🌐 Remote Computer / Browser Audio (Client Web Audio)</option>
+                            <option value="default">🔊 Raspberry Pi Local Server Speaker (Default Audio)</option>
                         </select>
                     </div>
                     <div class="control-group">
