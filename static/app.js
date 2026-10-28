@@ -1302,24 +1302,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const devices = await navigator.mediaDevices.enumerateDevices();
 
             if (configMicSelect) {
-                configMicSelect.innerHTML = '<option value="default">Default System Microphone</option>';
+                const currentMic = configMicSelect.value;
+                configMicSelect.innerHTML = '<option value="browser" selected>🌐 Remote Computer / Browser Microphone (Client Web Mic)</option><option value="default">🎙️ Raspberry Pi Local Server Microphone (Default Mic)</option>';
                 devices.filter(d => d.kind === 'audioinput').forEach((dev, idx) => {
                     const opt = document.createElement('option');
                     opt.value = dev.deviceId;
                     opt.textContent = dev.label || `Microphone ${idx + 1}`;
                     configMicSelect.appendChild(opt);
                 });
+                if (Array.from(configMicSelect.options).some(o => o.value === currentMic)) configMicSelect.value = currentMic;
             }
 
-            if (configAudioOutputSelect) {
-                configAudioOutputSelect.innerHTML = '<option value="default">Default System Speaker Output</option>';
-                devices.filter(d => d.kind === 'audiooutput').forEach((dev, idx) => {
-                    const opt = document.createElement('option');
-                    opt.value = dev.deviceId;
-                    opt.textContent = dev.label || `Speaker / Headphone ${idx + 1}`;
-                    configAudioOutputSelect.appendChild(opt);
-                });
-            }
+            if (window.AudioOutputDevices) window.AudioOutputDevices.populate();
         } catch (e) {
             console.log("Device enumeration error:", e);
         }
@@ -1417,8 +1411,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
 
-                if (configAudioOutputSelect && audioCtx.setSinkId && configAudioOutputSelect.value !== 'default') {
-                    await audioCtx.setSinkId(configAudioOutputSelect.value).catch(() => {});
+                const outputTarget = window.AudioOutputDevices ? window.AudioOutputDevices.getTarget() : '';
+                if (audioCtx.setSinkId && outputTarget.indexOf('remote:') === 0) {
+                    await audioCtx.setSinkId(outputTarget.substring(7)).catch(() => {});
                 }
 
                 osc.start();
