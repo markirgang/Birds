@@ -1298,22 +1298,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function populateMediaDevices() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
         try {
-            await navigator.mediaDevices.getUserMedia({ audio: true }).catch(() => {});
-            const devices = await navigator.mediaDevices.enumerateDevices();
-
-            if (configMicSelect) {
-                const currentMic = configMicSelect.value;
-                configMicSelect.innerHTML = '<option value="browser" selected>🌐 Remote Computer / Browser Microphone (Client Web Mic)</option><option value="default">🎙️ Raspberry Pi Local Server Microphone (Default Mic)</option>';
-                devices.filter(d => d.kind === 'audioinput').forEach((dev, idx) => {
-                    const opt = document.createElement('option');
-                    opt.value = dev.deviceId;
-                    opt.textContent = dev.label || `Microphone ${idx + 1}`;
-                    configMicSelect.appendChild(opt);
-                });
-                if (Array.from(configMicSelect.options).some(o => o.value === currentMic)) configMicSelect.value = currentMic;
+            if (window.AudioHardware) {
+                window.AudioHardware.populate();
+                return;
             }
-
-            if (window.AudioOutputDevices) window.AudioOutputDevices.populate();
         } catch (e) {
             console.log("Device enumeration error:", e);
         }

@@ -768,6 +768,20 @@
                     </div>
                 </div>
 
+                <!-- AI Model Selection -->
+                <div class="panel-card config-card">
+                    <div class="card-header">
+                        <h3>🤖 AI MODEL SELECTION</h3>
+                        <span class="card-badge">AI Engine</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="selectModel">Choose AI Model (OpenCode Go, Gemini, Ollama):</label>
+                        <select id="selectModel" class="config-select">
+                        </select>
+                        <div id="aiModelHint" style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;"></div>
+                    </div>
+                </div>
+
                 <!-- Microphone Selection -->
                 <div class="panel-card config-card">
                     <div class="card-header">
@@ -1586,6 +1600,7 @@
     <!-- Application Script -->
     <script src="/birdshow3d.js?v=2"></script>
     <script src="/audio_output.js?v=1"></script>
+    <script src="/ai_model_selector.js?v=1"></script>
     <script src="/app.js?v=2"></script>
 
     <!-- VIEW: ALEXA SKILLS DETECTED UPON DISCOVERY -->
