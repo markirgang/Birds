@@ -823,7 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let speechDetected = false;
     let silenceStartTimestamp = null;
-    const SILENCE_THRESHOLD_MS = 1400; // 1.4 seconds of silence auto-stops recording
+    const SILENCE_THRESHOLD_MS = 2000; // 1.4 seconds of silence auto-stops recording
 
     let continuousMicMode = false;
 
