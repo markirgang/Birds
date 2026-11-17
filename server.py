@@ -402,67 +402,20 @@ class BirdShowRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.serve_camera_frame()
         elif self.path.startswith("/api/tts/speak"):
             query_params = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
-            text_to_speak = query_params.get("text", ["Squawk! Welcome to the Bird Show!"])[0]
-            req_voice = query_params.get("voice", [None])[0]
-            req_parrot = query_params.get("parrot", [None])[0]
-
-            # Toggle speaker if mode is 'turns'
-            with state_lock:
-                if req_parrot in ["parrot1", "parrot2"]:
-                    bird_show_state["active_speaker"] = req_parrot
-                else:
-                    mode = bird_show_state["ai_sync_mode"]
-                    if mode == "turns":
-                        current = bird_show_state["active_speaker"]
-                        bird_show_state["active_speaker"] = "parrot2" if current == "parrot1" else "parrot1"
-                    elif mode in ["parrot1", "parrot2"]:
-                        bird_show_state["active_speaker"] = mode
-                active_speaker = bird_show_state["active_speaker"]
-                bird_show_state["is_speaking"] = True
-
-                if req_voice and req_voice != "auto":
-                    voice_id = req_voice
-                else:
-                    voice_id = bird_show_state.get(active_speaker, {}).get("voice", "ai_female_us")
-
+            text_to_speak = query_params.get("text", ["Hello!"])[0]
+            voice_id = query_params.get("voice", ["ai_butler_uk"])[0]
+            speaker = query_params.get("parrot", ["parrot1"])[0]
             try:
-                from gtts import gTTS
-                import io
-                clean_text = re.sub(r'\*[^*]*\*', '', text_to_speak).strip() or "Squawk!"
-
-                tld_map = {
-                    "ai_female_us": ("en", "com"),
-                    "ai_male_us": ("en", "us"),
-                    "ai_female_uk": ("en", "co.uk"),
-                    "ai_male_uk": ("en", "co.uk"),
-                    "ai_female_au": ("en", "com.au"),
-                    "ai_male_au": ("en", "com.au"),
-                    "ai_female_ca": ("en", "ca"),
-                    "ai_male_ca": ("en", "ca"),
-                    "ai_female_in": ("en", "co.in"),
-                    "ai_male_in": ("en", "co.in"),
-                    "ai_female_ie": ("en", "ie"),
-                    "ai_male_ie": ("en", "ie"),
-                    "ai_female_za": ("en", "co.za"),
-                    "ai_male_za": ("en", "co.za"),
-                    "ai_female_ng": ("en", "com.ng"),
-                    "ai_male_ng": ("en", "com.ng"),
-                    "ai_female_nz": ("en", "co.nz"),
-                    "ai_male_nz": ("en", "co.nz"),
-                }
-                lang, tld = tld_map.get(voice_id, ("en", "com"))
-                tts = gTTS(text=clean_text, lang=lang, tld=tld)
-                mp3_fp = io.BytesIO()
-                tts.write_to_fp(mp3_fp)
-                mp3_fp.seek(0)
-                audio_bytes = mp3_fp.read()
-
+                with state_lock:
+                    bird_show_state["active_speaker"] = speaker
+                    bird_show_state["is_speaking"] = True
+                audio_bytes = local_audio.synthesize_voice(text_to_speak, voice_id)
                 self.send_response(200)
                 self.send_header('Content-type', 'audio/mpeg')
+                self.send_header('Content-Length', str(len(audio_bytes)))
                 self.send_header('Cache-Control', 'no-cache')
                 self.end_headers()
                 self.wfile.write(audio_bytes)
-
             except Exception as e:
                 self.send_json({"error": str(e)}, status=500)
             finally:
